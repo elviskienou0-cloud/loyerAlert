@@ -31,7 +31,7 @@ function ResetPassword() {
     setLoading(true);
     const { error } = await supabase.auth.updateUser({ password });
     setLoading(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Mot de passe mis à jour.");
     navigate({ to: "/dashboard", replace: true });
   }

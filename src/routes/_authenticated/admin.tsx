@@ -74,7 +74,7 @@ function AdminPanel() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("payment_requests")
-        .select("*, profiles:user_id(full_name, email)")
+        .select("*")
         .order("created_at", { ascending: false })
         .limit(100);
       if (error) throw error;
@@ -84,11 +84,10 @@ function AdminPanel() {
 
   const review = useMutation({
     mutationFn: async (v: { id: string; approve: boolean; reason?: string }) => {
-      const { error } = await supabase.rpc("review_payment_request", {
-        p_request_id: v.id,
-        p_approve: v.approve,
-        p_reason: v.reason ?? undefined,
-      });
+      const args = v.reason
+        ? { p_request_id: v.id, p_approve: v.approve, p_reason: v.reason }
+        : { p_request_id: v.id, p_approve: v.approve };
+      const { error } = await supabase.rpc("review_payment_request", args);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -148,7 +147,7 @@ function AdminPanel() {
             <Skeleton className="h-32 w-full" />
           ) : (
             (requests.data ?? []).map((r) => {
-              const p = r.profiles as { full_name: string | null; email: string | null } | null;
+              const p = (users.data ?? []).find((u) => u.id === r.user_id) ?? null;
               return (
                 <div key={r.id} className="surface space-y-2 p-4 text-sm">
                   <p className="font-semibold">

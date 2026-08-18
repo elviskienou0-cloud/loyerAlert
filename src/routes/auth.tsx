@@ -41,7 +41,7 @@ function AuthPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) return toast.error("Connexion impossible : e-mail ou mot de passe incorrect.");
+    if (error) { toast.error("Connexion impossible : e-mail ou mot de passe incorrect."); return; }
     navigate({ to: "/dashboard", replace: true });
   }
 
@@ -54,10 +54,11 @@ function AuthPage() {
       options: { emailRedirectTo: window.location.origin, data: { full_name: fullName } },
     });
     setLoading(false);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     if (!data.session) {
       setSent(true);
-      return toast.success("Vérifiez votre e-mail pour confirmer votre compte.");
+      toast.success("Vérifiez votre e-mail pour confirmer votre compte.");
+      return;
     }
     navigate({ to: "/dashboard", replace: true });
   }
@@ -66,17 +67,17 @@ function AuthPage() {
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
     });
-    if (result.error) return toast.error("Connexion Google impossible. Réessayez.");
+    if (result.error) { toast.error("Connexion Google impossible. Réessayez."); return; }
     if (result.redirected) return;
     navigate({ to: "/dashboard", replace: true });
   }
 
   async function forgot() {
-    if (!email) return toast.error("Saisissez d'abord votre e-mail.");
+    if (!email) { toast.error("Saisissez d'abord votre e-mail."); return; }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Un lien de réinitialisation vous a été envoyé.");
   }
 
