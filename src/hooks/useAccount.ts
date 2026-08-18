@@ -33,6 +33,6 @@ export function useAccount() {
 export function logActivity(action: string, details: Record<string, unknown> = {}) {
   void supabase.auth.getUser().then(({ data }) => {
     if (!data.user) return;
-    void supabase.from("activity_logs").insert({ user_id: data.user.id, action, details });
+    void supabase.from("activity_logs").insert({ user_id: data.user.id, action, details: details as never });
   });
 }
