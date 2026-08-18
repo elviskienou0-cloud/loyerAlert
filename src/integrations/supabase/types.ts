@@ -14,16 +14,407 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      payment_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          payment_method: string
+          plan: Database["public"]["Enums"]["sub_plan"]
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          screenshot_path: string
+          sender_phone: string
+          status: Database["public"]["Enums"]["pay_request_status"]
+          transaction_reference: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          payment_method: string
+          plan: Database["public"]["Enums"]["sub_plan"]
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_path: string
+          sender_phone: string
+          status?: Database["public"]["Enums"]["pay_request_status"]
+          transaction_reference?: string | null
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          payment_method?: string
+          plan?: Database["public"]["Enums"]["sub_plan"]
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          screenshot_path?: string
+          sender_phone?: string
+          status?: Database["public"]["Enums"]["pay_request_status"]
+          transaction_reference?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          suspended: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          suspended?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          suspended?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          address: string | null
+          created_at: string
+          description: string | null
+          due_day: number
+          id: string
+          name: string
+          rent_amount: number
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          due_day?: number
+          id?: string
+          name: string
+          rent_amount?: number
+          user_id?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          description?: string | null
+          due_day?: number
+          id?: string
+          name?: string
+          rent_amount?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rent_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          method: string | null
+          note: string | null
+          paid_at: string
+          reference: string
+          rent_record_id: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          method?: string | null
+          note?: string | null
+          paid_at?: string
+          reference?: string
+          rent_record_id: string
+          user_id?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          method?: string | null
+          note?: string | null
+          paid_at?: string
+          reference?: string
+          rent_record_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rent_payments_rent_record_id_fkey"
+            columns: ["rent_record_id"]
+            isOneToOne: false
+            referencedRelation: "rent_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rent_payments_rent_record_id_fkey"
+            columns: ["rent_record_id"]
+            isOneToOne: false
+            referencedRelation: "rent_status_view"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rent_records: {
+        Row: {
+          amount_due: number
+          created_at: string
+          due_date: string
+          id: string
+          period: string
+          property_id: string | null
+          tenant_id: string
+          user_id: string
+        }
+        Insert: {
+          amount_due: number
+          created_at?: string
+          due_date: string
+          id?: string
+          period: string
+          property_id?: string | null
+          tenant_id: string
+          user_id?: string
+        }
+        Update: {
+          amount_due?: number
+          created_at?: string
+          due_date?: string
+          id?: string
+          period?: string
+          property_id?: string | null
+          tenant_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rent_records_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rent_records_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          ends_at: string | null
+          plan: Database["public"]["Enums"]["sub_plan"]
+          started_at: string | null
+          status: Database["public"]["Enums"]["sub_status"]
+          trial_ends_at: string
+          trial_started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ends_at?: string | null
+          plan?: Database["public"]["Enums"]["sub_plan"]
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["sub_status"]
+          trial_ends_at?: string
+          trial_started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ends_at?: string | null
+          plan?: Database["public"]["Enums"]["sub_plan"]
+          started_at?: string | null
+          status?: Database["public"]["Enums"]["sub_status"]
+          trial_ends_at?: string
+          trial_started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tenants: {
+        Row: {
+          active: boolean
+          created_at: string
+          due_day: number
+          full_name: string
+          id: string
+          move_in_date: string | null
+          phone: string
+          property_id: string | null
+          rent_amount: number
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          due_day?: number
+          full_name: string
+          id?: string
+          move_in_date?: string | null
+          phone: string
+          property_id?: string | null
+          rent_amount?: number
+          user_id?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          due_day?: number
+          full_name?: string
+          id?: string
+          move_in_date?: string | null
+          phone?: string
+          property_id?: string | null
+          rent_amount?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenants_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      rent_status_view: {
+        Row: {
+          amount_due: number | null
+          balance: number | null
+          due_date: string | null
+          id: string | null
+          paid_amount: number | null
+          period: string | null
+          property_id: string | null
+          property_name: string | null
+          status: string | null
+          tenant_id: string | null
+          tenant_name: string | null
+          tenant_phone: string | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rent_records_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rent_records_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
-      [_ in never]: never
+      admin_set_suspended: {
+        Args: { p_suspended: boolean; p_user_id: string }
+        Returns: undefined
+      }
+      effective_status: {
+        Args: { _user_id: string }
+        Returns: Database["public"]["Enums"]["sub_status"]
+      }
+      generate_rent_records: { Args: { p_period: string }; Returns: number }
+      has_access: { Args: { _user_id: string }; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_admin: { Args: never; Returns: boolean }
+      plan_limit: { Args: { _user_id: string }; Returns: number }
+      review_payment_request: {
+        Args: { p_approve: boolean; p_reason?: string; p_request_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "user" | "admin"
+      pay_request_status: "pending" | "approved" | "rejected"
+      sub_plan: "free" | "starter" | "pro" | "business"
+      sub_status: "trial" | "active" | "expired" | "suspended"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +541,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["user", "admin"],
+      pay_request_status: ["pending", "approved", "rejected"],
+      sub_plan: ["free", "starter", "pro", "business"],
+      sub_status: ["trial", "active", "expired", "suspended"],
+    },
   },
 } as const
