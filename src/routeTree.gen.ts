@@ -16,6 +16,9 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
 import { Route as AuthenticatedLogementsRouteImport } from './routes/_authenticated/logements'
+import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
+import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
+import { Route as AuthenticatedLocatairesTenantIdRouteImport } from './routes/_authenticated/locataires.$tenantId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -51,22 +54,44 @@ const AuthenticatedLogementsRoute = AuthenticatedLogementsRouteImport.update({
   path: '/logements',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPaiementsRoute = AuthenticatedPaiementsRouteImport.update({
+  id: '/paiements',
+  path: '/paiements',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
+  id: '/profil',
+  path: '/profil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLocatairesTenantIdRoute =
+  AuthenticatedLocatairesTenantIdRouteImport.update({
+    id: '/$tenantId',
+    path: '/$tenantId',
+    getParentRoute: () => AuthenticatedLocatairesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/locataires': typeof AuthenticatedLocatairesRoute
+  '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
+  '/paiements': typeof AuthenticatedPaiementsRoute
+  '/profil': typeof AuthenticatedProfilRoute
+  '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
-  '/locataires': typeof AuthenticatedLocatairesRoute
+  '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
+  '/paiements': typeof AuthenticatedPaiementsRoute
+  '/profil': typeof AuthenticatedProfilRoute
+  '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -75,8 +100,11 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
-  '/_authenticated/locataires': typeof AuthenticatedLocatairesRoute
+  '/_authenticated/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/_authenticated/logements': typeof AuthenticatedLogementsRoute
+  '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
+  '/_authenticated/profil': typeof AuthenticatedProfilRoute
+  '/_authenticated/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,6 +115,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/locataires'
     | '/logements'
+    | '/paiements'
+    | '/profil'
+    | '/locataires/$tenantId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -95,6 +126,9 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/locataires'
     | '/logements'
+    | '/paiements'
+    | '/profil'
+    | '/locataires/$tenantId'
   id:
     | '__root__'
     | '/'
@@ -104,6 +138,9 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/locataires'
     | '/_authenticated/logements'
+    | '/_authenticated/paiements'
+    | '/_authenticated/profil'
+    | '/_authenticated/locataires/$tenantId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -164,19 +201,58 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLogementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/paiements': {
+      id: '/_authenticated/paiements'
+      path: '/paiements'
+      fullPath: '/paiements'
+      preLoaderRoute: typeof AuthenticatedPaiementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/profil': {
+      id: '/_authenticated/profil'
+      path: '/profil'
+      fullPath: '/profil'
+      preLoaderRoute: typeof AuthenticatedProfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/locataires/$tenantId': {
+      id: '/_authenticated/locataires/$tenantId'
+      path: '/$tenantId'
+      fullPath: '/locataires/$tenantId'
+      preLoaderRoute: typeof AuthenticatedLocatairesTenantIdRouteImport
+      parentRoute: typeof AuthenticatedLocatairesRoute
+    }
   }
 }
 
+interface AuthenticatedLocatairesRouteChildren {
+  AuthenticatedLocatairesTenantIdRoute: typeof AuthenticatedLocatairesTenantIdRoute
+}
+
+const AuthenticatedLocatairesRouteChildren: AuthenticatedLocatairesRouteChildren =
+  {
+    AuthenticatedLocatairesTenantIdRoute: AuthenticatedLocatairesTenantIdRoute,
+  }
+
+const AuthenticatedLocatairesRouteWithChildren =
+  AuthenticatedLocatairesRoute._addFileChildren(
+    AuthenticatedLocatairesRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
-  AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRoute
+  AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRouteWithChildren
   AuthenticatedLogementsRoute: typeof AuthenticatedLogementsRoute
+  AuthenticatedPaiementsRoute: typeof AuthenticatedPaiementsRoute
+  AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
-  AuthenticatedLocatairesRoute: AuthenticatedLocatairesRoute,
+  AuthenticatedLocatairesRoute: AuthenticatedLocatairesRouteWithChildren,
   AuthenticatedLogementsRoute: AuthenticatedLogementsRoute,
+  AuthenticatedPaiementsRoute: AuthenticatedPaiementsRoute,
+  AuthenticatedProfilRoute: AuthenticatedProfilRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
