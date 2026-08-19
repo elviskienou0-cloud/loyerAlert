@@ -21,6 +21,7 @@ import { Route as AuthenticatedLogementsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminPaiementsRouteImport } from './routes/_authenticated/admin.paiements'
 import { Route as AuthenticatedLocatairesTenantIdRouteImport } from './routes/_authenticated/locataires.$tenantId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -82,6 +83,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminPaiementsRoute =
+  AuthenticatedAdminPaiementsRouteImport.update({
+    id: '/paiements',
+    path: '/paiements',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedLocatairesTenantIdRoute =
   AuthenticatedLocatairesTenantIdRouteImport.update({
     id: '/$tenantId',
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
+  '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -113,6 +121,7 @@ export interface FileRoutesByTo {
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
+  '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -129,6 +138,7 @@ export interface FileRoutesById {
   '/_authenticated/logements': typeof AuthenticatedLogementsRoute
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
+  '/_authenticated/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/_authenticated/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -145,6 +155,7 @@ export interface FileRouteTypes {
     | '/logements'
     | '/paiements'
     | '/profil'
+    | '/admin/paiements'
     | '/locataires/$tenantId'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -158,6 +169,7 @@ export interface FileRouteTypes {
     | '/logements'
     | '/paiements'
     | '/profil'
+    | '/admin/paiements'
     | '/locataires/$tenantId'
     | '/admin'
   id:
@@ -173,6 +185,7 @@ export interface FileRouteTypes {
     | '/_authenticated/logements'
     | '/_authenticated/paiements'
     | '/_authenticated/profil'
+    | '/_authenticated/admin/paiements'
     | '/_authenticated/locataires/$tenantId'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -270,6 +283,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/paiements': {
+      id: '/_authenticated/admin/paiements'
+      path: '/paiements'
+      fullPath: '/admin/paiements'
+      preLoaderRoute: typeof AuthenticatedAdminPaiementsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/locataires/$tenantId': {
       id: '/_authenticated/locataires/$tenantId'
       path: '/$tenantId'
@@ -281,10 +301,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminPaiementsRoute: typeof AuthenticatedAdminPaiementsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminPaiementsRoute: AuthenticatedAdminPaiementsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
