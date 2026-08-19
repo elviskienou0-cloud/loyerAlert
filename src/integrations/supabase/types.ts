@@ -386,11 +386,37 @@ export type Database = {
       }
     }
     Functions: {
+      admin_logs: {
+        Args: { p_limit?: number }
+        Returns: {
+          action: string
+          admin_email: string
+          created_at: string
+          details: Json
+          id: string
+          user_email: string
+          user_id: string
+        }[]
+      }
       admin_set_suspended: {
         Args: { p_suspended: boolean; p_user_id: string }
         Returns: undefined
       }
       admin_stats: { Args: never; Returns: Json }
+      admin_subscriptions: {
+        Args: never
+        Returns: {
+          email: string
+          ends_at: string
+          full_name: string
+          plan: Database["public"]["Enums"]["sub_plan"]
+          started_at: string
+          status: Database["public"]["Enums"]["sub_status"]
+          trial_ends_at: string
+          updated_at: string
+          user_id: string
+        }[]
+      }
       admin_users: {
         Args: { p_search?: string }
         Returns: {
@@ -402,6 +428,8 @@ export type Database = {
           phone: string
           plan: Database["public"]["Enums"]["sub_plan"]
           properties: number
+          role: Database["public"]["Enums"]["app_role"]
+          started_at: string
           status: Database["public"]["Enums"]["sub_status"]
           suspended: boolean
           trial_ends_at: string
