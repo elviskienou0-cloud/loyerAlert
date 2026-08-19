@@ -20,6 +20,7 @@ import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authentic
 import { Route as AuthenticatedLogementsRouteImport } from './routes/_authenticated/logements'
 import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedLocatairesTenantIdRouteImport } from './routes/_authenticated/locataires.$tenantId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -76,6 +77,11 @@ const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
   path: '/profil',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedLocatairesTenantIdRoute =
   AuthenticatedLocatairesTenantIdRouteImport.update({
     id: '/$tenantId',
@@ -88,26 +94,27 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
-  '/admin': typeof AuthenticatedAdminRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,13 +123,14 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/abonnement': typeof AuthenticatedAbonnementRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/_authenticated/logements': typeof AuthenticatedLogementsRoute
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -138,19 +146,20 @@ export interface FileRouteTypes {
     | '/paiements'
     | '/profil'
     | '/locataires/$tenantId'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
     | '/reset-password'
     | '/abonnement'
-    | '/admin'
     | '/dashboard'
     | '/locataires'
     | '/logements'
     | '/paiements'
     | '/profil'
     | '/locataires/$tenantId'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -165,6 +174,7 @@ export interface FileRouteTypes {
     | '/_authenticated/paiements'
     | '/_authenticated/profil'
     | '/_authenticated/locataires/$tenantId'
+    | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -253,6 +263,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedProfilRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/locataires/$tenantId': {
       id: '/_authenticated/locataires/$tenantId'
       path: '/$tenantId'
@@ -262,6 +279,17 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
 
 interface AuthenticatedLocatairesRouteChildren {
   AuthenticatedLocatairesTenantIdRoute: typeof AuthenticatedLocatairesTenantIdRoute
@@ -279,7 +307,7 @@ const AuthenticatedLocatairesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAbonnementRoute: typeof AuthenticatedAbonnementRoute
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRouteWithChildren
   AuthenticatedLogementsRoute: typeof AuthenticatedLogementsRoute
@@ -289,7 +317,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAbonnementRoute: AuthenticatedAbonnementRoute,
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLocatairesRoute: AuthenticatedLocatairesRouteWithChildren,
   AuthenticatedLogementsRoute: AuthenticatedLogementsRoute,
