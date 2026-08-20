@@ -38,7 +38,7 @@ export function printReceipt(d: ReceiptData) {
   <tr><td>Reste à payer</td><td>${fcfa(d.balance)}</td></tr>
  </table>
  <div class="total">Montant payé : ${fcfa(d.amount)}</div>
- <p class="muted">Document généré par LoyerAlert — Burkina Faso.</p>
+ <p class="muted">Document généré par LoyerAlert — Afrique de l'Ouest.</p>
 </div>
 <script>window.onload=()=>{window.print()}</script>
 </body></html>`;
