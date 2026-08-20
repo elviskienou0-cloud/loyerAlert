@@ -2,19 +2,20 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Building2, MessageCircle, Receipt, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 import { supabase } from "@/integrations/supabase/client";
 import { fcfa, PLANS } from "@/lib/format";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "LoyerAlert — Suivi des loyers au Burkina Faso" },
+      { title: "LoyerAlert — Suivi des loyers en Afrique de l'Ouest" },
       {
         name: "description",
         content:
-          "Sachez qui a payé son loyer, qui est en retard et relancez vos locataires par WhatsApp. Simple, en FCFA, pensé pour le Burkina Faso.",
+          "Sachez qui a payé son loyer, qui est en retard et relancez vos locataires par WhatsApp. Simple, en FCFA, pensé pour l'Afrique de l'Ouest.",
       },
-      { property: "og:title", content: "LoyerAlert — Suivi des loyers au Burkina Faso" },
+      { property: "og:title", content: "LoyerAlert — Suivi des loyers en Afrique de l'Ouest" },
       {
         property: "og:description",
         content: "Loyers payés, retards et relances WhatsApp en un coup d'œil. Essai gratuit 30 jours.",
@@ -43,7 +44,7 @@ function Landing() {
 
       <main className="mx-auto max-w-5xl px-5">
         <section className="py-10 md:py-16">
-          <p className="text-sm font-semibold uppercase tracking-wider text-accent">Burkina Faso · FCFA</p>
+          <p className="text-sm font-semibold uppercase tracking-wider text-accent">Afrique de l'Ouest · FCFA</p>
           <h1 className="mt-3 text-4xl font-bold leading-tight md:text-5xl">
             Qui a payé son loyer&nbsp;? Qui est en retard&nbsp;?
           </h1>
@@ -94,8 +95,17 @@ function Landing() {
       </main>
 
       <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
-        LoyerAlert — Ouagadougou, Burkina Faso
+        <p>LoyerAlert — Afrique de l'Ouest</p>
+        <nav className="mt-2 flex justify-center gap-4">
+          <Link to="/confidentialite" className="underline">
+            Politique de confidentialité
+          </Link>
+          <Link to="/cookies" className="underline">
+            Cookies
+          </Link>
+        </nav>
       </footer>
     </div>
+
   );
 }

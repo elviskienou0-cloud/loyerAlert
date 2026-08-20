@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -29,6 +30,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [sent, setSent] = useState(false);
+  const [consent, setConsent] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -47,6 +49,10 @@ function AuthPage() {
 
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
+    if (!consent) {
+      toast.error("Merci d'accepter la politique de confidentialité pour créer votre compte.");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -118,7 +124,26 @@ function AuthPage() {
                   <Field label="Nom complet" value={fullName} onChange={setFullName} />
                   <Field label="E-mail" value={email} onChange={setEmail} type="email" />
                   <Field label="Mot de passe" value={password} onChange={setPassword} type="password" />
-                  <Button type="submit" className="w-full" disabled={loading}>
+                  <label className="flex items-start gap-2 text-xs text-muted-foreground">
+                    <Checkbox
+                      checked={consent}
+                      onCheckedChange={(v) => setConsent(v === true)}
+                      className="mt-0.5"
+                      aria-label="Consentement au traitement des données"
+                    />
+                    <span>
+                      J'accepte que mes informations soient enregistrées pour gérer mon compte, conformément à la{" "}
+                      <Link to="/confidentialite" className="underline">
+                        politique de confidentialité
+                      </Link>{" "}
+                      et à la{" "}
+                      <Link to="/cookies" className="underline">
+                        politique de cookies
+                      </Link>
+                      .
+                    </span>
+                  </label>
+                  <Button type="submit" className="w-full" disabled={loading || !consent}>
                     {loading ? "Création…" : "Créer mon compte"}
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">

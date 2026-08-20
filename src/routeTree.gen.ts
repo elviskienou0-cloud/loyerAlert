@@ -12,6 +12,8 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
+import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAbonnementRouteImport } from './routes/_authenticated/abonnement'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -21,7 +23,10 @@ import { Route as AuthenticatedLogementsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAbonnementsRouteImport } from './routes/_authenticated/admin.abonnements'
+import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin.journal'
 import { Route as AuthenticatedAdminPaiementsRouteImport } from './routes/_authenticated/admin.paiements'
+import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
 import { Route as AuthenticatedLocatairesTenantIdRouteImport } from './routes/_authenticated/locataires.$tenantId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -36,6 +41,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
+  id: '/confidentialite',
+  path: '/confidentialite',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -83,10 +98,28 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAbonnementsRoute =
+  AuthenticatedAdminAbonnementsRouteImport.update({
+    id: '/abonnements',
+    path: '/abonnements',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminJournalRoute =
+  AuthenticatedAdminJournalRouteImport.update({
+    id: '/journal',
+    path: '/journal',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPaiementsRoute =
   AuthenticatedAdminPaiementsRouteImport.update({
     id: '/paiements',
     path: '/paiements',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminUtilisateursRoute =
+  AuthenticatedAdminUtilisateursRouteImport.update({
+    id: '/utilisateurs',
+    path: '/utilisateurs',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedLocatairesTenantIdRoute =
@@ -99,6 +132,8 @@ const AuthenticatedLocatairesTenantIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/cookies': typeof CookiesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -107,13 +142,18 @@ export interface FileRoutesByFullPath {
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
+  '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
+  '/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/cookies': typeof CookiesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -121,7 +161,10 @@ export interface FileRoutesByTo {
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
+  '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
+  '/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -130,6 +173,8 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/confidentialite': typeof ConfidentialiteRoute
+  '/cookies': typeof CookiesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/abonnement': typeof AuthenticatedAbonnementRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -138,7 +183,10 @@ export interface FileRoutesById {
   '/_authenticated/logements': typeof AuthenticatedLogementsRoute
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
+  '/_authenticated/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
+  '/_authenticated/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/_authenticated/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
+  '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -147,6 +195,8 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/confidentialite'
+    | '/cookies'
     | '/reset-password'
     | '/abonnement'
     | '/admin'
@@ -155,13 +205,18 @@ export interface FileRouteTypes {
     | '/logements'
     | '/paiements'
     | '/profil'
+    | '/admin/abonnements'
+    | '/admin/journal'
     | '/admin/paiements'
+    | '/admin/utilisateurs'
     | '/locataires/$tenantId'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/confidentialite'
+    | '/cookies'
     | '/reset-password'
     | '/abonnement'
     | '/dashboard'
@@ -169,7 +224,10 @@ export interface FileRouteTypes {
     | '/logements'
     | '/paiements'
     | '/profil'
+    | '/admin/abonnements'
+    | '/admin/journal'
     | '/admin/paiements'
+    | '/admin/utilisateurs'
     | '/locataires/$tenantId'
     | '/admin'
   id:
@@ -177,6 +235,8 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/confidentialite'
+    | '/cookies'
     | '/reset-password'
     | '/_authenticated/abonnement'
     | '/_authenticated/admin'
@@ -185,7 +245,10 @@ export interface FileRouteTypes {
     | '/_authenticated/logements'
     | '/_authenticated/paiements'
     | '/_authenticated/profil'
+    | '/_authenticated/admin/abonnements'
+    | '/_authenticated/admin/journal'
     | '/_authenticated/admin/paiements'
+    | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/locataires/$tenantId'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -194,6 +257,8 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  ConfidentialiteRoute: typeof ConfidentialiteRoute
+  CookiesRoute: typeof CookiesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
@@ -218,6 +283,20 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/confidentialite': {
+      id: '/confidentialite'
+      path: '/confidentialite'
+      fullPath: '/confidentialite'
+      preLoaderRoute: typeof ConfidentialiteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -283,11 +362,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/abonnements': {
+      id: '/_authenticated/admin/abonnements'
+      path: '/abonnements'
+      fullPath: '/admin/abonnements'
+      preLoaderRoute: typeof AuthenticatedAdminAbonnementsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/journal': {
+      id: '/_authenticated/admin/journal'
+      path: '/journal'
+      fullPath: '/admin/journal'
+      preLoaderRoute: typeof AuthenticatedAdminJournalRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/paiements': {
       id: '/_authenticated/admin/paiements'
       path: '/paiements'
       fullPath: '/admin/paiements'
       preLoaderRoute: typeof AuthenticatedAdminPaiementsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/utilisateurs': {
+      id: '/_authenticated/admin/utilisateurs'
+      path: '/utilisateurs'
+      fullPath: '/admin/utilisateurs'
+      preLoaderRoute: typeof AuthenticatedAdminUtilisateursRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/locataires/$tenantId': {
@@ -301,12 +401,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAbonnementsRoute: typeof AuthenticatedAdminAbonnementsRoute
+  AuthenticatedAdminJournalRoute: typeof AuthenticatedAdminJournalRoute
   AuthenticatedAdminPaiementsRoute: typeof AuthenticatedAdminPaiementsRoute
+  AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAbonnementsRoute: AuthenticatedAdminAbonnementsRoute,
+  AuthenticatedAdminJournalRoute: AuthenticatedAdminJournalRoute,
   AuthenticatedAdminPaiementsRoute: AuthenticatedAdminPaiementsRoute,
+  AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -354,6 +460,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  ConfidentialiteRoute: ConfidentialiteRoute,
+  CookiesRoute: CookiesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
