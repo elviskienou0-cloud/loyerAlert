@@ -22,6 +22,7 @@ import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authentica
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAbonnementsRouteImport } from './routes/_authenticated/admin.abonnements'
+import { Route as AuthenticatedAdminJournalRouteImport } from './routes/_authenticated/admin.journal'
 import { Route as AuthenticatedAdminPaiementsRouteImport } from './routes/_authenticated/admin.paiements'
 import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
 import { Route as AuthenticatedLocatairesTenantIdRouteImport } from './routes/_authenticated/locataires.$tenantId'
@@ -91,6 +92,12 @@ const AuthenticatedAdminAbonnementsRoute =
     path: '/abonnements',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminJournalRoute =
+  AuthenticatedAdminJournalRouteImport.update({
+    id: '/journal',
+    path: '/journal',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPaiementsRoute =
   AuthenticatedAdminPaiementsRouteImport.update({
     id: '/paiements',
@@ -122,6 +129,7 @@ export interface FileRoutesByFullPath {
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
+  '/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
@@ -138,6 +146,7 @@ export interface FileRoutesByTo {
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
+  '/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
@@ -157,6 +166,7 @@ export interface FileRoutesById {
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
+  '/_authenticated/admin/journal': typeof AuthenticatedAdminJournalRoute
   '/_authenticated/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
   '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
@@ -176,6 +186,7 @@ export interface FileRouteTypes {
     | '/paiements'
     | '/profil'
     | '/admin/abonnements'
+    | '/admin/journal'
     | '/admin/paiements'
     | '/admin/utilisateurs'
     | '/locataires/$tenantId'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/paiements'
     | '/profil'
     | '/admin/abonnements'
+    | '/admin/journal'
     | '/admin/paiements'
     | '/admin/utilisateurs'
     | '/locataires/$tenantId'
@@ -210,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/paiements'
     | '/_authenticated/profil'
     | '/_authenticated/admin/abonnements'
+    | '/_authenticated/admin/journal'
     | '/_authenticated/admin/paiements'
     | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/locataires/$tenantId'
@@ -316,6 +329,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAbonnementsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/journal': {
+      id: '/_authenticated/admin/journal'
+      path: '/journal'
+      fullPath: '/admin/journal'
+      preLoaderRoute: typeof AuthenticatedAdminJournalRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/paiements': {
       id: '/_authenticated/admin/paiements'
       path: '/paiements'
@@ -342,6 +362,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAbonnementsRoute: typeof AuthenticatedAdminAbonnementsRoute
+  AuthenticatedAdminJournalRoute: typeof AuthenticatedAdminJournalRoute
   AuthenticatedAdminPaiementsRoute: typeof AuthenticatedAdminPaiementsRoute
   AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -349,6 +370,7 @@ interface AuthenticatedAdminRouteChildren {
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAbonnementsRoute: AuthenticatedAdminAbonnementsRoute,
+  AuthenticatedAdminJournalRoute: AuthenticatedAdminJournalRoute,
   AuthenticatedAdminPaiementsRoute: AuthenticatedAdminPaiementsRoute,
   AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
