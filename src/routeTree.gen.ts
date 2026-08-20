@@ -23,6 +23,7 @@ import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAbonnementsRouteImport } from './routes/_authenticated/admin.abonnements'
 import { Route as AuthenticatedAdminPaiementsRouteImport } from './routes/_authenticated/admin.paiements'
+import { Route as AuthenticatedAdminUtilisateursRouteImport } from './routes/_authenticated/admin.utilisateurs'
 import { Route as AuthenticatedLocatairesTenantIdRouteImport } from './routes/_authenticated/locataires.$tenantId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -96,6 +97,12 @@ const AuthenticatedAdminPaiementsRoute =
     path: '/paiements',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminUtilisateursRoute =
+  AuthenticatedAdminUtilisateursRouteImport.update({
+    id: '/utilisateurs',
+    path: '/utilisateurs',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedLocatairesTenantIdRoute =
   AuthenticatedLocatairesTenantIdRouteImport.update({
     id: '/$tenantId',
@@ -116,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/profil': typeof AuthenticatedProfilRoute
   '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
   '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -131,6 +139,7 @@ export interface FileRoutesByTo {
   '/profil': typeof AuthenticatedProfilRoute
   '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
   '/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
+  '/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
 }
@@ -149,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
   '/_authenticated/admin/paiements': typeof AuthenticatedAdminPaiementsRoute
+  '/_authenticated/admin/utilisateurs': typeof AuthenticatedAdminUtilisateursRoute
   '/_authenticated/locataires/$tenantId': typeof AuthenticatedLocatairesTenantIdRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
 }
@@ -167,6 +177,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/admin/abonnements'
     | '/admin/paiements'
+    | '/admin/utilisateurs'
     | '/locataires/$tenantId'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -182,6 +193,7 @@ export interface FileRouteTypes {
     | '/profil'
     | '/admin/abonnements'
     | '/admin/paiements'
+    | '/admin/utilisateurs'
     | '/locataires/$tenantId'
     | '/admin'
   id:
@@ -199,6 +211,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profil'
     | '/_authenticated/admin/abonnements'
     | '/_authenticated/admin/paiements'
+    | '/_authenticated/admin/utilisateurs'
     | '/_authenticated/locataires/$tenantId'
     | '/_authenticated/admin/'
   fileRoutesById: FileRoutesById
@@ -310,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPaiementsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/utilisateurs': {
+      id: '/_authenticated/admin/utilisateurs'
+      path: '/utilisateurs'
+      fullPath: '/admin/utilisateurs'
+      preLoaderRoute: typeof AuthenticatedAdminUtilisateursRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/locataires/$tenantId': {
       id: '/_authenticated/locataires/$tenantId'
       path: '/$tenantId'
@@ -323,12 +343,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAbonnementsRoute: typeof AuthenticatedAdminAbonnementsRoute
   AuthenticatedAdminPaiementsRoute: typeof AuthenticatedAdminPaiementsRoute
+  AuthenticatedAdminUtilisateursRoute: typeof AuthenticatedAdminUtilisateursRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAbonnementsRoute: AuthenticatedAdminAbonnementsRoute,
   AuthenticatedAdminPaiementsRoute: AuthenticatedAdminPaiementsRoute,
+  AuthenticatedAdminUtilisateursRoute: AuthenticatedAdminUtilisateursRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
