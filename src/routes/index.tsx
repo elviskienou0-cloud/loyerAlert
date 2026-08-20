@@ -94,8 +94,18 @@ function Landing() {
       </main>
 
       <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
-        LoyerAlert — Afrique de l'Ouest
+        <p>LoyerAlert — Afrique de l'Ouest</p>
+        <nav className="mt-2 flex justify-center gap-4">
+          <Link to="/confidentialite" className="underline">
+            Politique de confidentialité
+          </Link>
+          <Link to="/cookies" className="underline">
+            Cookies
+          </Link>
+        </nav>
       </footer>
+      <CookieConsent />
     </div>
+
   );
 }
