@@ -74,6 +74,7 @@ function AdminLayout() {
           {LINKS.map((l) => {
             const Icon = l.icon;
             const active = l.exact ? path === l.to || path === `${l.to}/` : path.startsWith(l.to);
+            const count = l.to === "/admin/paiements" ? (pending.data ?? 0) : 0;
             return (
               <Link
                 key={l.to}
@@ -85,10 +86,22 @@ function AdminLayout() {
               >
                 <Icon className="size-4" />
                 <span className="whitespace-nowrap">{l.label}</span>
+                {count > 0 ? (
+                  <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-neutral-950">
+                    {count}
+                  </span>
+                ) : null}
               </Link>
             );
           })}
         </nav>
+        <a
+          href="mailto:kienoucoucou5@gmail.com?subject=Assistance%20LoyerAlert%20(admin)"
+          className="mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <LifeBuoy className="size-4" />
+          <span className="whitespace-nowrap">Assistance</span>
+        </a>
       </aside>
       <section className="min-w-0 flex-1 animate-in fade-in duration-300">
         <Outlet />
@@ -96,3 +109,4 @@ function AdminLayout() {
     </div>
   );
 }
+
