@@ -1,6 +1,6 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Building2, Home, LogOut, Receipt, Shield, User, Users, CreditCard } from "lucide-react";
+import { Building2, Home, LifeBuoy, LogOut, Receipt, Shield, User, Users, CreditCard } from "lucide-react";
 import type { ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
