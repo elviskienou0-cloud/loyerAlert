@@ -386,6 +386,7 @@ export type Database = {
       }
     }
     Functions: {
+      admin_charts: { Args: { p_months?: number }; Returns: Json }
       admin_logs: {
         Args: { p_limit?: number }
         Returns: {
