@@ -35,7 +35,12 @@ function AdminLayout() {
   const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
+  const isAdmin = Boolean(account?.is_admin);
+  useAdminNotifications(isAdmin);
+  const pending = usePendingRequestsCount(isAdmin);
+
   const denied = !isLoading && (isError || !account?.is_admin);
+
 
   useEffect(() => {
     if (!denied) return;
