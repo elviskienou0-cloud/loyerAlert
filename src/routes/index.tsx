@@ -103,6 +103,10 @@ function Landing() {
           <Link to="/cookies" className="underline">
             Cookies
           </Link>
+          <Link to="/assistance" className="underline">
+            Assistance
+          </Link>
+
         </nav>
       </footer>
     </div>
