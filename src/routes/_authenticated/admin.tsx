@@ -1,7 +1,8 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { BarChart3, CreditCard, FileClock, Receipt, Users } from "lucide-react";
+import { BarChart3, CreditCard, FileClock, LifeBuoy, Receipt, Users } from "lucide-react";
 import { useAccount } from "@/hooks/useAccount";
+import { useAdminNotifications, usePendingRequestsCount } from "@/hooks/useAdminNotifications";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
