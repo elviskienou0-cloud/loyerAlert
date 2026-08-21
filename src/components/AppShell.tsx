@@ -59,6 +59,11 @@ export function AppShell({ children }: { children: ReactNode }) {
             ) : null}
           </nav>
           <div className="flex items-center gap-2">
+            <Link to="/assistance">
+              <Button variant="ghost" size="icon" aria-label="Assistance">
+                <LifeBuoy className="size-5" />
+              </Button>
+            </Link>
             {account?.is_admin ? (
               <Link to="/admin" className="md:hidden">
                 <Button variant="ghost" size="icon" aria-label="Espace admin">
