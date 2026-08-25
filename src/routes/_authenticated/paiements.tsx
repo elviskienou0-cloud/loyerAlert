@@ -143,7 +143,7 @@ function Payments() {
           </DialogHeader>
           {target ? (
             <form
-              className="space-y-3"
+              className="stagger space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 pay.mutate();

@@ -192,7 +192,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <Bell className="size-5" />
               </Button>
               {notifications > 0 ? (
-                <span className="absolute right-1.5 top-1.5 size-2 animate-pulse rounded-full bg-destructive" />
+                <span className="absolute right-1.5 top-1.5 size-2 pulse-soft rounded-full bg-destructive" />
               ) : null}
             </Link>
 
