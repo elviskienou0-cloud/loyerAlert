@@ -93,7 +93,7 @@ function AdminDashboard() {
         </div>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="stagger grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Panel title="Revenus par mois (6 derniers mois)">
             {charts.isLoading ? (

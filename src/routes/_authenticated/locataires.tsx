@@ -97,7 +97,7 @@ function Tenants() {
               <DialogTitle>Nouveau locataire</DialogTitle>
             </DialogHeader>
             <form
-              className="space-y-3"
+              className="stagger space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
                 create.mutate();
