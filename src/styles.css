@@ -162,6 +162,64 @@
   box-shadow: var(--shadow-card);
 }
 
+/* Carte interactive : élévation très légère au survol (desktop). */
+@utility surface-hover {
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+@layer base {
+  .surface-hover:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--color-primary) 25%, transparent);
+    box-shadow: 0 10px 24px oklch(0.2 0.03 165 / 0.08);
+  }
+
+  button:active,
+  [role="button"]:active {
+    transform: scale(0.985);
+  }
+
+  input:focus-visible,
+  textarea:focus-visible,
+  select:focus-visible {
+    border-color: var(--color-primary);
+  }
+}
+
+/* Apparition douce des cartes / listes. */
+@utility rise-in {
+  animation: rise-in 220ms ease-out both;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .surface-hover:hover {
+    transform: none;
+  }
+}
+
 @media print {
   .no-print {
     display: none !important;
