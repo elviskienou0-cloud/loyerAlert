@@ -385,7 +385,10 @@
     scroll-behavior: auto !important;
   }
 
-  .surface-hover:hover {
+  .surface-hover:hover,
+  .surface:hover,
+  button:hover,
+  [role="button"]:hover {
     transform: none;
   }
 }
