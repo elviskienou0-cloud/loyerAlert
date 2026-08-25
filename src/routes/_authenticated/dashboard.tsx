@@ -7,6 +7,7 @@ import { useAccount } from "@/hooks/useAccount";
 import { SubscriptionBanner } from "@/components/SubscriptionBanner";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AnimatedBar, CountUp } from "@/components/motion";
 import { currentPeriod, fcfa, monthLabel } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -165,12 +166,14 @@ function Dashboard() {
   );
 }
 
-function Stat({ label, value, tone }: { label: string; value: string; tone?: "success" | "danger" }) {
+function Stat({ label, value, tone }: { label: string; value: number; tone?: "success" | "danger" }) {
   const color =
     tone === "success" ? "text-success" : tone === "danger" ? "text-destructive" : "text-foreground";
   return (
     <div className="surface p-4">
-      <p className={`font-display text-xl font-bold ${color}`}>{value}</p>
+      <p className={`font-display text-xl font-bold ${color}`}>
+        <CountUp value={value} format={(n) => fcfa(Math.round(n))} />
+      </p>
       <p className="mt-1 text-sm text-muted-foreground">{label}</p>
     </div>
   );
