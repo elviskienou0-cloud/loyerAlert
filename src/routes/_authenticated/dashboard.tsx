@@ -120,17 +120,20 @@ function Dashboard() {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Loyers du mois
           </p>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Stat label="Attendus" value={fcfa(expected)} />
-            <Stat label="Encaissés" value={fcfa(collected)} tone="success" />
-            <Stat label="Impayés" value={fcfa(unpaid)} tone="danger" />
+          <div className="stagger grid gap-3 sm:grid-cols-3">
+            <Stat label="Attendus" value={expected} />
+            <Stat label="Encaissés" value={collected} tone="success" />
+            <Stat label="Impayés" value={unpaid} tone="danger" />
           </div>
 
           <div className="surface p-5">
-            <p className="text-lg font-semibold">{properties.data ?? 0} logements</p>
+            <p className="text-lg font-semibold">
+              <CountUp value={properties.data ?? 0} /> logements
+            </p>
             <p className="mt-1 text-sm text-muted-foreground">
               🟢 {paidCount} payés · 🔴 {lateCount} en retard · taux d'encaissement {rate}%
             </p>
+            <AnimatedBar value={rate} className="mt-3" />
             <div className="mt-4 flex flex-wrap gap-2">
               <Link to="/paiements">
                 <Button size="sm">Voir les retards</Button>
