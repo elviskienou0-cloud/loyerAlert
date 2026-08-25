@@ -22,6 +22,7 @@ import { Route as AuthenticatedDashboardRouteImport } from './routes/_authentica
 import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
 import { Route as AuthenticatedLogementsRouteImport } from './routes/_authenticated/logements'
 import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
+import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminAbonnementsRouteImport } from './routes/_authenticated/admin.abonnements'
@@ -94,6 +95,11 @@ const AuthenticatedPaiementsRoute = AuthenticatedPaiementsRouteImport.update({
   path: '/paiements',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedParametresRoute = AuthenticatedParametresRouteImport.update({
+  id: '/parametres',
+  path: '/parametres',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
   id: '/profil',
   path: '/profil',
@@ -148,6 +154,7 @@ export interface FileRoutesByFullPath {
   '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
+  '/parametres': typeof AuthenticatedParametresRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
@@ -168,6 +175,7 @@ export interface FileRoutesByTo {
   '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
+  '/parametres': typeof AuthenticatedParametresRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
   '/admin/journal': typeof AuthenticatedAdminJournalRoute
@@ -191,6 +199,7 @@ export interface FileRoutesById {
   '/_authenticated/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/_authenticated/logements': typeof AuthenticatedLogementsRoute
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
+  '/_authenticated/parametres': typeof AuthenticatedParametresRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/admin/abonnements': typeof AuthenticatedAdminAbonnementsRoute
   '/_authenticated/admin/journal': typeof AuthenticatedAdminJournalRoute
@@ -214,6 +223,7 @@ export interface FileRouteTypes {
     | '/locataires'
     | '/logements'
     | '/paiements'
+    | '/parametres'
     | '/profil'
     | '/admin/abonnements'
     | '/admin/journal'
@@ -234,6 +244,7 @@ export interface FileRouteTypes {
     | '/locataires'
     | '/logements'
     | '/paiements'
+    | '/parametres'
     | '/profil'
     | '/admin/abonnements'
     | '/admin/journal'
@@ -256,6 +267,7 @@ export interface FileRouteTypes {
     | '/_authenticated/locataires'
     | '/_authenticated/logements'
     | '/_authenticated/paiements'
+    | '/_authenticated/parametres'
     | '/_authenticated/profil'
     | '/_authenticated/admin/abonnements'
     | '/_authenticated/admin/journal'
@@ -368,6 +380,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPaiementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/parametres': {
+      id: '/_authenticated/parametres'
+      path: '/parametres'
+      fullPath: '/parametres'
+      preLoaderRoute: typeof AuthenticatedParametresRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profil': {
       id: '/_authenticated/profil'
       path: '/profil'
@@ -460,6 +479,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRouteWithChildren
   AuthenticatedLogementsRoute: typeof AuthenticatedLogementsRoute
   AuthenticatedPaiementsRoute: typeof AuthenticatedPaiementsRoute
+  AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
 }
 
@@ -470,6 +490,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLocatairesRoute: AuthenticatedLocatairesRouteWithChildren,
   AuthenticatedLogementsRoute: AuthenticatedLogementsRoute,
   AuthenticatedPaiementsRoute: AuthenticatedPaiementsRoute,
+  AuthenticatedParametresRoute: AuthenticatedParametresRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
 }
 
