@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { MessageCircle } from "lucide-react";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/hooks/useAccount";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fcfa, monthLabel, shortDate, STATUS_DOT, STATUS_LABEL } from "@/lib/format";
-import { buildMessage, kindForStatus, whatsappUrl } from "@/lib/whatsapp";
+
 import { printReceipt } from "@/lib/receipt";
 
 export const Route = createFileRoute("/_authenticated/paiements")({
@@ -220,26 +220,12 @@ function Section({
             </div>
             <div className="flex gap-2">
               {r.tenant_phone ? (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() =>
-                    window.open(
-                      whatsappUrl(
-                        r.tenant_phone!,
-                        buildMessage(kindForStatus(r.status), {
-                          nom: r.tenant_name ?? "",
-                          montant: Number(r.balance),
-                          date: r.due_date,
-                        }),
-                      ),
-                      "_blank",
-                      "noopener",
-                    )
-                  }
-                >
-                  <MessageCircle className="size-4" />
-                </Button>
+                <WhatsAppButton
+                  phone={r.tenant_phone}
+                  name={r.tenant_name ?? ""}
+                  amount={Number(r.balance)}
+                  date={r.due_date}
+                />
               ) : null}
               {r.status !== "paid" ? (
                 <Button size="sm" onClick={() => onPay(r)}>

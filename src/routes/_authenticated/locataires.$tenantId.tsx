@@ -58,16 +58,6 @@ function TenantDetail() {
   const current = history.data?.[0];
   const status = current?.status ?? "upcoming";
 
-  function relancer() {
-    const msg = buildMessage(kindForStatus(status), {
-      nom: t.full_name,
-      montant: Number(current?.balance ?? t.rent_amount),
-      date: current?.due_date ?? new Date().toISOString(),
-    });
-    logActivity("reminder_sent", { tenant_id: tenantId });
-    window.open(whatsappUrl(t.phone, msg), "_blank", "noopener");
-  }
-
   return (
     <div className="space-y-4">
       <div className="surface p-5">
