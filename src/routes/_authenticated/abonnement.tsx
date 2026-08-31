@@ -60,7 +60,9 @@ function Subscription() {
       if (!file) throw new Error("La capture d'écran est obligatoire.");
       if (!MIME.includes(file.type)) throw new Error("Format accepté : JPG, PNG ou WebP.");
       if (file.size > MAX_SIZE) throw new Error("Image trop lourde (3 Mo maximum).");
-      if (senderPhone.replace(/\D/g, "").length < 8) throw new Error("Numéro de paiement invalide.");
+      if (method !== "saspay" && senderPhone.replace(/\D/g, "").length < 8)
+        throw new Error("Numéro de paiement invalide.");
+
 
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) throw new Error("Non connecté");
