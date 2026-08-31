@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { fcfa, monthLabel, shortDate, STATUS_DOT, STATUS_LABEL } from "@/lib/format";
-import { buildMessage, kindForStatus, whatsappUrl } from "@/lib/whatsapp";
 import { logActivity } from "@/hooks/useAccount";
+
 
 export const Route = createFileRoute("/_authenticated/locataires/$tenantId")({
   head: () => ({
