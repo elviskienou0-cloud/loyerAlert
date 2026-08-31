@@ -33,10 +33,12 @@ function Subscription() {
   const queryClient = useQueryClient();
   const { data: account, isLoading } = useAccount();
   const [plan, setPlan] = useState<string>("starter");
-  const [method, setMethod] = useState<"orange_money" | "moov_money">("orange_money");
+  const [method, setMethod] = useState<"orange_money" | "moov_money" | "saspay">("saspay");
   const [senderPhone, setSenderPhone] = useState("");
   const [reference, setReference] = useState("");
+  const [paidAt, setPaidAt] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [file, setFile] = useState<File | null>(null);
+
 
   const requests = useQuery({
     queryKey: ["payment-requests"],
