@@ -33,10 +33,12 @@ function Subscription() {
   const queryClient = useQueryClient();
   const { data: account, isLoading } = useAccount();
   const [plan, setPlan] = useState<string>("starter");
-  const [method, setMethod] = useState<"orange_money" | "moov_money">("orange_money");
+  const [method, setMethod] = useState<"orange_money" | "moov_money" | "saspay">("saspay");
   const [senderPhone, setSenderPhone] = useState("");
   const [reference, setReference] = useState("");
+  const [paidAt, setPaidAt] = useState<string>(() => new Date().toISOString().slice(0, 10));
   const [file, setFile] = useState<File | null>(null);
+
 
   const requests = useQuery({
     queryKey: ["payment-requests"],
@@ -58,7 +60,9 @@ function Subscription() {
       if (!file) throw new Error("La capture d'écran est obligatoire.");
       if (!MIME.includes(file.type)) throw new Error("Format accepté : JPG, PNG ou WebP.");
       if (file.size > MAX_SIZE) throw new Error("Image trop lourde (3 Mo maximum).");
-      if (senderPhone.replace(/\D/g, "").length < 8) throw new Error("Numéro de paiement invalide.");
+      if (method !== "saspay" && senderPhone.replace(/\D/g, "").length < 8)
+        throw new Error("Numéro de paiement invalide.");
+
 
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) throw new Error("Non connecté");

@@ -1,12 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { fcfa, monthLabel, shortDate, STATUS_DOT, STATUS_LABEL } from "@/lib/format";
-import { buildMessage, kindForStatus, whatsappUrl } from "@/lib/whatsapp";
 import { logActivity } from "@/hooks/useAccount";
+
 
 export const Route = createFileRoute("/_authenticated/locataires/$tenantId")({
   head: () => ({
@@ -72,9 +71,18 @@ function TenantDetail() {
         <p className="mt-2 text-sm font-semibold">
           {STATUS_DOT[status]} {STATUS_LABEL[status]}
         </p>
-        <Button className="mt-4" onClick={relancer}>
-          <MessageCircle className="mr-2 size-4" /> Relancer WhatsApp
-        </Button>
+        <div className="mt-4">
+          <WhatsAppButton
+            phone={t.phone}
+            name={t.full_name}
+            amount={Number(current?.balance ?? t.rent_amount)}
+            date={current?.due_date ?? new Date().toISOString()}
+            variant="default"
+            label
+            onOpen={(kind) => logActivity("whatsapp_opened", { tenant: t.id, kind })}
+          />
+        </div>
+
       </div>
 
       <div className="surface p-5">
