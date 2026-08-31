@@ -72,9 +72,18 @@ function TenantDetail() {
         <p className="mt-2 text-sm font-semibold">
           {STATUS_DOT[status]} {STATUS_LABEL[status]}
         </p>
-        <Button className="mt-4" onClick={relancer}>
-          <MessageCircle className="mr-2 size-4" /> Relancer WhatsApp
-        </Button>
+        <div className="mt-4">
+          <WhatsAppButton
+            phone={t.phone}
+            name={t.full_name}
+            amount={Number(current?.balance ?? t.rent_amount)}
+            date={current?.due_date ?? new Date().toISOString()}
+            variant="default"
+            label
+            onOpen={(kind) => logActivity("whatsapp_opened", { tenant: t.id, kind })}
+          />
+        </div>
+
       </div>
 
       <div className="surface p-5">
