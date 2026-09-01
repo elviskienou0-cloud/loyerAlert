@@ -143,19 +143,30 @@ function Subscription() {
           <div>
             <p className="font-semibold">Payer {fcfa(chosen.price)} pour la formule {chosen.name}</p>
             <p className="text-sm text-muted-foreground">
-              Effectuez le transfert, puis envoyez la preuve. L'activation est faite manuellement par
-              notre équipe.
+              Effectuez le paiement, puis confirmez-le avec une preuve. L'activation est faite
+              manuellement par notre équipe (1 mois calendaire).
             </p>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <button
+              type="button"
+              onClick={() => setMethod("saspay")}
+              className={cn(
+                "rounded-xl border border-border p-4 text-left transition-colors",
+                method === "saspay" && "border-primary ring-2 ring-primary/30",
+              )}
+            >
+              <p className="font-semibold">💳 SasPay</p>
+              <p className="text-sm text-muted-foreground">Paiement par lien sécurisé</p>
+            </button>
             {(Object.keys(PAYMENT_NUMBERS) as (keyof typeof PAYMENT_NUMBERS)[]).map((k) => (
               <button
                 key={k}
                 type="button"
                 onClick={() => setMethod(k)}
                 className={cn(
-                  "rounded-xl border border-border p-4 text-left",
+                  "rounded-xl border border-border p-4 text-left transition-colors",
                   method === k && "border-primary ring-2 ring-primary/30",
                 )}
               >
@@ -165,27 +176,73 @@ function Subscription() {
             ))}
           </div>
 
-          <div className="space-y-1.5">
-            <Label>Numéro ayant effectué le paiement</Label>
-            <Input required value={senderPhone} onChange={(e) => setSenderPhone(e.target.value)} />
+          {method === "saspay" ? (
+            <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
+              <p className="text-sm text-muted-foreground">
+                Étape 1 — Ouvrez le lien de paiement SasPay et réglez {fcfa(chosen.price)}. Revenez
+                ensuite ici pour confirmer votre paiement avec la capture d'écran.
+              </p>
+              <Button
+                type="button"
+                className="mt-3 w-full"
+                onClick={() => {
+                  if (!openSaspayCheckout(chosen.id)) {
+                    toast.error("Aucun lien SasPay pour cette formule.");
+                    return;
+                  }
+                  logActivity("saspay_checkout_opened", { plan: chosen.id });
+                  toast.info("Lien SasPay ouvert. Revenez confirmer votre paiement ensuite.");
+                }}
+              >
+                💳 Payer avec SasPay
+              </Button>
+            </div>
+          ) : null}
+
+          <div className="space-y-4 rounded-xl border border-border p-4">
+            <p className="font-semibold">
+              {method === "saspay" ? "Étape 2 — Confirmer mon paiement" : "Confirmer mon paiement"}
+            </p>
+            <div className="space-y-1.5">
+              <Label>Date du paiement</Label>
+              <Input
+                type="date"
+                required
+                value={paidAt}
+                max={new Date().toISOString().slice(0, 10)}
+                onChange={(e) => setPaidAt(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>
+                Numéro ayant effectué le paiement{method === "saspay" ? " (facultatif)" : ""}
+              </Label>
+              <Input
+                required={method !== "saspay"}
+                value={senderPhone}
+                onChange={(e) => setSenderPhone(e.target.value)}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label>
+                {method === "saspay" ? "Référence SasPay (facultatif)" : "Référence de transaction (facultatif)"}
+              </Label>
+              <Input value={reference} onChange={(e) => setReference(e.target.value)} />
+            </div>
+            <div className="space-y-1.5">
+              <Label>Capture d'écran du paiement (obligatoire)</Label>
+              <Input
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                required
+                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              />
+              <p className="text-xs text-muted-foreground">JPG, PNG ou WebP — 3 Mo maximum.</p>
+            </div>
+            <Button type="submit" className="w-full" disabled={submit.isPending}>
+              {submit.isPending ? "Envoi…" : "Confirmer mon paiement"}
+            </Button>
           </div>
-          <div className="space-y-1.5">
-            <Label>Référence de transaction (facultatif)</Label>
-            <Input value={reference} onChange={(e) => setReference(e.target.value)} />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Capture d'écran du paiement (obligatoire)</Label>
-            <Input
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              required
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-            <p className="text-xs text-muted-foreground">JPG, PNG ou WebP — 3 Mo maximum.</p>
-          </div>
-          <Button type="submit" className="w-full" disabled={submit.isPending}>
-            {submit.isPending ? "Envoi…" : "Envoyer ma preuve de paiement"}
-          </Button>
         </form>
       )}
 
