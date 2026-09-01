@@ -23,7 +23,11 @@ export const Route = createFileRoute("/_authenticated/admin/paiements")({
   component: AdminPayments,
 });
 
-const METHOD: Record<string, string> = { orange_money: "Orange Money", moov_money: "Moov Money" };
+const METHOD: Record<string, string> = {
+  orange_money: "Orange Money",
+  moov_money: "Moov Money",
+  saspay: "SasPay",
+};
 
 function AdminPayments() {
   const queryClient = useQueryClient();
