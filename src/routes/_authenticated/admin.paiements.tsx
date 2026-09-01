@@ -23,7 +23,11 @@ export const Route = createFileRoute("/_authenticated/admin/paiements")({
   component: AdminPayments,
 });
 
-const METHOD: Record<string, string> = { orange_money: "Orange Money", moov_money: "Moov Money" };
+const METHOD: Record<string, string> = {
+  orange_money: "Orange Money",
+  moov_money: "Moov Money",
+  saspay: "SasPay",
+};
 
 function AdminPayments() {
   const queryClient = useQueryClient();
@@ -97,7 +101,9 @@ function AdminPayments() {
                 <th className="px-4 py-2">Formule</th>
                 <th className="px-4 py-2">Montant</th>
                 <th className="px-4 py-2">Méthode</th>
+                <th className="px-4 py-2">Canal</th>
                 <th className="px-4 py-2">Référence</th>
+                <th className="px-4 py-2">Payé le</th>
                 <th className="px-4 py-2">Date</th>
                 <th className="px-4 py-2">Statut</th>
                 <th className="px-4 py-2">Actions</th>
@@ -112,7 +118,9 @@ function AdminPayments() {
                     <td className="px-4 py-3">{r.plan}</td>
                     <td className="px-4 py-3">{fcfa(r.amount)}</td>
                     <td className="px-4 py-3">{METHOD[r.payment_method] ?? r.payment_method}</td>
+                    <td className="px-4 py-3">{r.payment_channel === "saspay" ? "💳 SasPay" : "Manuel"}</td>
                     <td className="px-4 py-3">{r.transaction_reference ?? "—"}</td>
+                    <td className="px-4 py-3">{r.paid_at ? shortDate(r.paid_at) : "—"}</td>
                     <td className="px-4 py-3">{shortDate(r.created_at)}</td>
                     <td className="px-4 py-3">
                       <Badge tone={statusTone(r.status)}>{statusLabel(r.status)}</Badge>
