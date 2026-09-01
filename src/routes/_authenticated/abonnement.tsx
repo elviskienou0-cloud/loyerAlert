@@ -78,6 +78,8 @@ function Subscription() {
         plan: chosen.id,
         amount: chosen.price,
         payment_method: method,
+        payment_channel: method === "saspay" ? "saspay" : "manual",
+        paid_at: paidAt,
         sender_phone: senderPhone.trim(),
         transaction_reference: reference.trim() || null,
         screenshot_path: path,
