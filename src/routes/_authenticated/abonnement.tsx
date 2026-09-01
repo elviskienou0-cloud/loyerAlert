@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fcfa, PAYMENT_NUMBERS, PLANS, shortDate } from "@/lib/format";
+import { openSaspayCheckout } from "@/lib/saspay";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/_authenticated/abonnement")({
