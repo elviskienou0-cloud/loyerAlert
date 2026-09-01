@@ -38,6 +38,81 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_announcements: {
+        Row: {
+          active: boolean
+          audience: string
+          body: string
+          created_at: string
+          created_by: string | null
+          id: string
+          kind: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          audience?: string
+          body: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          audience?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          kind?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      alert_logs: {
+        Row: {
+          channel: string
+          created_at: string
+          details: Json
+          id: string
+          kind: string
+          recipient_name: string | null
+          recipient_phone: string | null
+          status: string
+          tenant_id: string | null
+          user_id: string
+        }
+        Insert: {
+          channel?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          kind?: string
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          status?: string
+          tenant_id?: string | null
+          user_id?: string
+        }
+        Update: {
+          channel?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          kind?: string
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          status?: string
+          tenant_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       payment_requests: {
         Row: {
           amount: number
@@ -89,6 +164,60 @@ export type Database = {
           status?: Database["public"]["Enums"]["pay_request_status"]
           transaction_reference?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      platform_settings: {
+        Row: {
+          brand_name: string
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          id: boolean
+          logo_url: string | null
+          maintenance_message: string | null
+          maintenance_mode: boolean
+          notifications: Json
+          plans: Json
+          privacy: string | null
+          saspay: Json
+          terms: string | null
+          updated_at: string
+          whatsapp_number: string | null
+        }
+        Insert: {
+          brand_name?: string
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: boolean
+          logo_url?: string | null
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
+          notifications?: Json
+          plans?: Json
+          privacy?: string | null
+          saspay?: Json
+          terms?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
+        }
+        Update: {
+          brand_name?: string
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: boolean
+          logo_url?: string | null
+          maintenance_message?: string | null
+          maintenance_mode?: boolean
+          notifications?: Json
+          plans?: Json
+          privacy?: string | null
+          saspay?: Json
+          terms?: string | null
+          updated_at?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
@@ -392,7 +521,24 @@ export type Database = {
       }
     }
     Functions: {
+      admin_alerts: { Args: { p_limit?: number }; Returns: Json }
+      admin_analytics: { Args: { p_days?: number }; Returns: Json }
       admin_charts: { Args: { p_months?: number }; Returns: Json }
+      admin_dashboard: { Args: never; Returns: Json }
+      admin_delete_property: { Args: { p_id: string }; Returns: undefined }
+      admin_delete_user: { Args: { p_user_id: string }; Returns: undefined }
+      admin_level: { Args: { _user_id: string }; Returns: string }
+      admin_list_admins: {
+        Args: never
+        Returns: {
+          created_at: string
+          email: string
+          full_name: string
+          level: string
+          suspended: boolean
+          user_id: string
+        }[]
+      }
       admin_logs: {
         Args: { p_limit?: number }
         Returns: {
@@ -404,6 +550,41 @@ export type Database = {
           user_email: string
           user_id: string
         }[]
+      }
+      admin_properties: {
+        Args: { p_search?: string }
+        Returns: {
+          address: string
+          created_at: string
+          due_day: number
+          id: string
+          name: string
+          next_due: string
+          occupied: boolean
+          owner_email: string
+          owner_id: string
+          owner_name: string
+          rent_amount: number
+          tenant_name: string
+          tenant_phone: string
+        }[]
+      }
+      admin_send_announcement: {
+        Args: {
+          p_audience?: string
+          p_body: string
+          p_kind?: string
+          p_title: string
+        }
+        Returns: string
+      }
+      admin_set_level: {
+        Args: { p_email: string; p_level: string }
+        Returns: undefined
+      }
+      admin_set_subscription: {
+        Args: { p_months?: number; p_plan: string; p_user_id: string }
+        Returns: undefined
       }
       admin_set_suspended: {
         Args: { p_suspended: boolean; p_user_id: string }
@@ -424,6 +605,37 @@ export type Database = {
           user_id: string
         }[]
       }
+      admin_subscriptions_full: {
+        Args: never
+        Returns: {
+          days_left: number
+          email: string
+          ends_at: string
+          full_name: string
+          plan: string
+          price: number
+          properties: number
+          started_at: string
+          status: string
+          trial_ends_at: string
+          user_id: string
+        }[]
+      }
+      admin_toggle_announcement: {
+        Args: { p_active: boolean; p_id: string }
+        Returns: undefined
+      }
+      admin_update_property: {
+        Args: {
+          p_address: string
+          p_due_day: number
+          p_id: string
+          p_name: string
+          p_rent: number
+        }
+        Returns: undefined
+      }
+      admin_update_settings: { Args: { p_patch: Json }; Returns: undefined }
       admin_users: {
         Args: { p_search?: string }
         Returns: {
@@ -456,6 +668,8 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_staff: { Args: never; Returns: boolean }
+      is_super_admin: { Args: never; Returns: boolean }
       my_account: { Args: never; Returns: Json }
       plan_limit: { Args: { _user_id: string }; Returns: number }
       review_payment_request: {
@@ -464,7 +678,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "user" | "admin"
+      app_role: "user" | "admin" | "moderator" | "super_admin"
       pay_request_status: "pending" | "approved" | "rejected"
       sub_plan: "free" | "starter" | "pro" | "business"
       sub_status: "trial" | "active" | "expired" | "suspended"
@@ -595,7 +809,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["user", "admin"],
+      app_role: ["user", "admin", "moderator", "super_admin"],
       pay_request_status: ["pending", "approved", "rejected"],
       sub_plan: ["free", "starter", "pro", "business"],
       sub_status: ["trial", "active", "expired", "suspended"],
