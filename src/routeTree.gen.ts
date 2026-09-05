@@ -15,6 +15,7 @@ import { Route as AssistanceRouteImport } from './routes/assistance'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ConfidentialiteRouteImport } from './routes/confidentialite'
 import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as QuittanceDeLoyerRouteImport } from './routes/quittance-de-loyer'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAbonnementRouteImport } from './routes/_authenticated/abonnement'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -58,6 +59,11 @@ const ConfidentialiteRoute = ConfidentialiteRouteImport.update({
 const CookiesRoute = CookiesRouteImport.update({
   id: '/cookies',
   path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const QuittanceDeLoyerRoute = QuittanceDeLoyerRouteImport.update({
+  id: '/quittance-de-loyer',
+  path: '/quittance-de-loyer',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -147,6 +153,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
+  '/quittance-de-loyer': typeof QuittanceDeLoyerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
+  '/quittance-de-loyer': typeof QuittanceDeLoyerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/abonnement': typeof AuthenticatedAbonnementRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -192,6 +200,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/confidentialite': typeof ConfidentialiteRoute
   '/cookies': typeof CookiesRoute
+  '/quittance-de-loyer': typeof QuittanceDeLoyerRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/abonnement': typeof AuthenticatedAbonnementRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
@@ -216,6 +225,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/confidentialite'
     | '/cookies'
+    | '/quittance-de-loyer'
     | '/reset-password'
     | '/abonnement'
     | '/admin'
@@ -238,6 +248,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/confidentialite'
     | '/cookies'
+    | '/quittance-de-loyer'
     | '/reset-password'
     | '/abonnement'
     | '/dashboard'
@@ -260,6 +271,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/confidentialite'
     | '/cookies'
+    | '/quittance-de-loyer'
     | '/reset-password'
     | '/_authenticated/abonnement'
     | '/_authenticated/admin'
@@ -284,6 +296,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   ConfidentialiteRoute: typeof ConfidentialiteRoute
   CookiesRoute: typeof CookiesRoute
+  QuittanceDeLoyerRoute: typeof QuittanceDeLoyerRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
@@ -329,6 +342,13 @@ declare module '@tanstack/react-router' {
       path: '/cookies'
       fullPath: '/cookies'
       preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/quittance-de-loyer': {
+      id: '/quittance-de-loyer'
+      path: '/quittance-de-loyer'
+      fullPath: '/quittance-de-loyer'
+      preLoaderRoute: typeof QuittanceDeLoyerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/reset-password': {
@@ -504,6 +524,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   ConfidentialiteRoute: ConfidentialiteRoute,
   CookiesRoute: CookiesRoute,
+  QuittanceDeLoyerRoute: QuittanceDeLoyerRoute,
   ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
