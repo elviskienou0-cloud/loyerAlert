@@ -44,8 +44,9 @@ function ResetPassword() {
           Saisissez votre nouveau mot de passe. Ouvrez cette page depuis le lien reçu par e-mail.
         </p>
         <div className="space-y-1.5">
-          <Label>Mot de passe</Label>
+          <Label htmlFor="new-password">Mot de passe</Label>
           <Input
+            id="new-password"
             type="password"
             minLength={6}
             required
