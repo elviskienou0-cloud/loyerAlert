@@ -81,14 +81,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "LoyerAlert — Suivi des loyers en Afrique de l'Ouest" },
-      { name: "description", content: "Savoir qui a payé son loyer, qui est en retard, et relancer par WhatsApp en Afrique de l'Ouest." },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "LoyerAlert — Suivi des loyers" },
-      { property: "og:description", content: "Le suivi des loyers simple pour les propriétaires en Afrique de l'Ouest." },
-      { property: "og:type", content: "website" },
+      { property: "og:site_name", content: "LoyerAlert" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:site", content: "@Lovable" },
     ],
     links: [
       {
