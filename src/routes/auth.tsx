@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
@@ -93,6 +93,9 @@ function AuthPage() {
         <Link to="/" className="mb-6 block text-center font-display text-xl font-bold tracking-wide text-primary">
           LOYERALERT
         </Link>
+        <h1 className="mb-4 text-center font-display text-2xl font-bold">
+          Connexion à votre espace propriétaire
+        </h1>
         <div className="surface p-6">
           {sent ? (
             <p className="text-sm text-muted-foreground">
@@ -177,10 +180,11 @@ function Field({
   onChange: (v: string) => void;
   type?: string;
 }) {
+  const id = useId();
   return (
     <div className="space-y-1.5">
-      <Label>{label}</Label>
-      <Input type={type} value={value} required onChange={(e) => onChange(e.target.value)} />
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} type={type} value={value} required onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }
