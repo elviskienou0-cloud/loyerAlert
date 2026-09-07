@@ -85,7 +85,12 @@ export function WhatsAppButton({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button size={size} variant={variant} className={className}>
+          <Button
+            size={size}
+            variant={variant}
+            className={className}
+            aria-label="Contacter sur WhatsApp"
+          >
             <MessageCircle className="size-4" />
             {label ? <span className="ml-2">Contacter sur WhatsApp</span> : null}
           </Button>
