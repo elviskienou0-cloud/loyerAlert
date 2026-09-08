@@ -67,8 +67,12 @@ function Subscription() {
 
       const { data: auth } = await supabase.auth.getUser();
       if (!auth.user) throw new Error("Non connecté");
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const path = `${auth.user.id}/${Date.now()}.${ext}`;
+      const ext = (file.name.split(".").pop() ?? "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 5) || "jpg";
+      const unique =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+      const path = `${auth.user.id}/${Date.now()}-${unique}.${ext}`;
       const up = await supabase.storage.from("payment-proofs").upload(path, file, {
         contentType: file.type,
         upsert: false,
