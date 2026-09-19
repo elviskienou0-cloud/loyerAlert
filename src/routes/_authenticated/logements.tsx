@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity, useAccount } from "@/hooks/useAccount";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +52,9 @@ function Properties() {
     },
     retry: 2,
   });
+
+  // Actualisation automatique depuis Supabase (temps réel).
+  useRealtimeSync(["properties"], [["properties"]]);
 
   const create = useMutation({
     mutationFn: async () => {

@@ -13,4 +13,4 @@ Allow: /
 User-agent: *
 Allow: /
 
-Sitemap: https://loyer-alert-bf.lovable.app/sitemap.xml
+Sitemap: https://loyeralert.bf/sitemap.xml

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/hooks/useAccount";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -59,6 +60,11 @@ function Tenants() {
     },
     retry: 2,
   });
+
+  // Actualisation automatique : dès qu'un logement ou un locataire change côté
+  // Supabase (autre appareil, autre onglet, action admin…), ces listes se
+  // remettent à jour toutes seules, sans rechargement manuel.
+  useRealtimeSync(["tenants", "properties"], [["tenants"], ["properties"]]);
 
   const create = useMutation({
     mutationFn: async () => {

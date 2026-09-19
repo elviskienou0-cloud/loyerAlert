@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { CheckCircle2, Download, MessageCircle, Receipt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const SITE_URL = "https://loyer-alert-bf.lovable.app";
+const SITE_URL = import.meta.env["VITE_SITE_URL"] || "https://loyeralert.bf";
 const WA_SHARE = `https://wa.me/?text=${encodeURIComponent(
   "Je gère mes loyers avec LoyerAlert : je vois qui a payé, qui est en retard, et je relance par WhatsApp en un clic. Essai gratuit 30 jours : " +
     SITE_URL,

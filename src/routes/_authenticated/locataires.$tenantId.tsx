@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { WhatsAppButton } from "@/components/WhatsAppButton";
 import { fcfa, monthLabel, shortDate, STATUS_DOT, STATUS_LABEL } from "@/lib/format";
 import { logActivity } from "@/hooks/useAccount";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 
 
 export const Route = createFileRoute("/_authenticated/locataires/$tenantId")({
@@ -49,6 +50,13 @@ function TenantDetail() {
       return data ?? [];
     },
   });
+
+  // Actualisation automatique : la fiche se met à jour dès qu'un paiement ou
+  // une échéance change côté Supabase.
+  useRealtimeSync(
+    ["tenants", "rent_records", "rent_payments"],
+    [["tenant", tenantId], ["tenant-history", tenantId]],
+  );
 
   if (tenant.isLoading) return <Skeleton className="h-40 w-full" />;
   if (!tenant.data) return <p className="surface p-6 text-sm">Locataire introuvable.</p>;

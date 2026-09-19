@@ -748,7 +748,7 @@ Le produit doit être compréhensible par une personne peu habituée aux logicie
 
 25. EXPORTABILITÉ
 
-Le projet doit être entièrement exportable hors de Lovable.
+Le projet doit être entièrement indépendant et auto-hébergeable (fait : ✅ plus aucune dépendance à Lovable).
 
 Inclure :
 
@@ -768,7 +768,7 @@ structure de base de données ;
 
 fichiers nécessaires au déploiement.
 
-Aucune dépendance critique cachée à Lovable.
+Aucune dépendance critique cachée à un service tiers propriétaire.
 
 Ne jamais mettre les secrets dans le code source.
 
@@ -1144,25 +1144,46 @@ Le frontend ne doit être qu'une représentation de l'état réel retourné par 
 
 Créer les tables, contraintes, politiques RLS, fonctions et logique nécessaires pour empêcher toute manipulation du système d'abonnement.
 
-This project was built with [Lovable](https://lovable.dev).
+## Stack
 
-**Live app**: https://loyer-alert-bf.lovable.app
+- Frontend/SSR : React 19 + TanStack Start (TanStack Router + Vite)
+- Base de données, auth, stockage et temps réel : [Supabase](https://supabase.com) (PostgreSQL)
+- Aucune dépendance à un éditeur ou service tiers — projet 100% indépendant et exportable.
 
-## Build with Lovable
+## Développement local
 
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/0d7c276a-6bb5-4f7e-89e3-f11dc2e67818).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
-## Development
-
-Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
+Prérequis : Node.js ≥ 20 (ou Bun) et un projet Supabase.
 
 ```sh
 git clone <this-repository-url>
 cd <repository-name>
-npm i
-npm run dev
+npm install          # ou: bun install
+cp .env.example .env # puis renseignez vos identifiants Supabase
+npm run dev           # démarre le serveur de dev sur http://localhost:8080
 ```
+
+## Base de données Supabase
+
+Toute la base de données (tables, RLS, fonctions, déclencheurs) est décrite dans
+`supabase/migrations/`. Pour appliquer ces migrations sur votre propre projet
+Supabase :
+
+```sh
+npx supabase login
+npx supabase link --project-ref <votre-project-ref>
+npx supabase db push
+```
+
+Un compartiment de stockage `payment-proofs` (privé) doit exister pour les
+captures d'écran de paiement — voir `supabase/config.toml`.
+
+## Build & déploiement
+
+```sh
+npm run build   # build de production dans .output/ (préréglage Node par défaut)
+npm run preview
+```
+
+Le build utilise [Nitro](https://nitro.build) ; définissez la variable
+d'environnement `NITRO_PRESET` (`node-server`, `cloudflare-module`, `vercel`,
+`netlify`, …) pour cibler l'hébergeur de votre choix.
