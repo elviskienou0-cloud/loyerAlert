@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useId, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -70,12 +69,15 @@ function AuthPage() {
   }
 
   async function google() {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
+    // Intégration officielle Supabase : redirige vers Google puis revient sur
+    // cette page, où le useEffect ci-dessus détecte la session et envoie
+    // l'utilisateur vers /dashboard. Aucune dépendance à un service tiers.
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/auth` },
     });
-    if (result.error) { toast.error("Connexion Google impossible. Réessayez."); return; }
-    if (result.redirected) return;
-    navigate({ to: "/dashboard", replace: true });
+    if (error) toast.error("Connexion Google impossible. Réessayez.");
+    // En cas de succès, le navigateur est redirigé vers Google : rien d'autre à faire ici.
   }
 
   async function forgot() {

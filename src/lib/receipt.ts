@@ -1,3 +1,4 @@
+import { jsPDF } from "jspdf";
 import { fcfa, monthLabel, shortDate } from "./format";
 
 export type ReceiptData = {
@@ -11,39 +12,108 @@ export type ReceiptData = {
   balance: number;
 };
 
-/** Ouvre un reçu imprimable (impression ou « Enregistrer en PDF »). */
+const BRAND = "#1f6f52";
+const MUTED = "#6b7c74";
+const INK = "#1c2b26";
+const LINE = "#e3ece7";
+
+/**
+ * La police "helvetica" standard de jsPDF (encodage WinAnsi) ne contient pas
+ * l'espace fine insécable (U+202F) que `Intl.NumberFormat("fr-FR")` utilise
+ * comme séparateur de milliers — le glyphe s'affiche alors cassé dans le PDF.
+ * On la remplace par une espace normale avant tout rendu.
+ */
+function pdfSafe(s: string): string {
+  return s.replace(/[\u202F\u00A0]/g, " ");
+}
+
+/**
+ * Génère un reçu de paiement en PDF (jsPDF, entièrement côté client — aucun
+ * appel réseau) et déclenche son téléchargement.
+ *
+ * Remplace l'ancienne implémentation qui ouvrait une fenêtre d'impression
+ * navigateur : ceci produit un vrai fichier .pdf, indépendant du navigateur
+ * de l'utilisateur.
+ */
 export function printReceipt(d: ReceiptData) {
-  const html = `<!doctype html><html lang="fr"><head><meta charset="utf-8">
-<title>Reçu ${d.reference}</title>
-<style>
- body{font-family:system-ui,sans-serif;color:#1c2b26;margin:0;padding:32px;}
- .box{max-width:640px;margin:auto;border:1px solid #d7e0da;border-radius:14px;padding:28px}
- h1{font-size:20px;margin:0}
- .brand{color:#1f6f52;font-weight:700;letter-spacing:.04em}
- table{width:100%;border-collapse:collapse;margin-top:20px;font-size:14px}
- td{padding:9px 0;border-bottom:1px solid #eef2ef}
- td:last-child{text-align:right;font-weight:600}
- .total{font-size:20px;font-weight:700;margin-top:18px;color:#1f6f52}
- .muted{color:#6b7c74;font-size:12px;margin-top:24px}
-</style></head><body><div class="box">
- <div class="brand">LOYERALERT</div>
- <h1>Reçu de paiement de loyer</h1>
- <table>
-  <tr><td>Référence</td><td>${d.reference}</td></tr>
-  <tr><td>Propriétaire</td><td>${d.owner}</td></tr>
-  <tr><td>Locataire</td><td>${d.tenant}</td></tr>
-  <tr><td>Logement</td><td>${d.property}</td></tr>
-  <tr><td>Période</td><td>${monthLabel(d.period)}</td></tr>
-  <tr><td>Date du paiement</td><td>${shortDate(d.paidAt)}</td></tr>
-  <tr><td>Reste à payer</td><td>${fcfa(d.balance)}</td></tr>
- </table>
- <div class="total">Montant payé : ${fcfa(d.amount)}</div>
- <p class="muted">Document généré par LoyerAlert — Afrique de l'Ouest.</p>
-</div>
-<script>window.onload=()=>{window.print()}</script>
-</body></html>`;
-  const w = window.open("", "_blank", "width=780,height=900");
-  if (!w) return;
-  w.document.write(html);
-  w.document.close();
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+  const marginX = 20;
+  const contentWidth = pageWidth - marginX * 2;
+
+  // En-tête
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(BRAND);
+  doc.text("LOYERALERT", marginX, 22);
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.setTextColor(MUTED);
+  doc.text("Suivi des loyers — Afrique de l'Ouest", marginX, 28);
+
+  doc.setDrawColor(LINE);
+  doc.line(marginX, 33, marginX + contentWidth, 33);
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(14);
+  doc.setTextColor(INK);
+  doc.text("Reçu de paiement de loyer", marginX, 44);
+
+  // Tableau des informations
+  const rows: [string, string][] = [
+    ["Référence", d.reference],
+    ["Propriétaire", d.owner],
+    ["Locataire", d.tenant],
+    ["Logement", d.property],
+    ["Période", monthLabel(d.period)],
+    ["Date du paiement", shortDate(d.paidAt)],
+    ["Reste à payer", pdfSafe(fcfa(d.balance))],
+  ];
+
+  let y = 56;
+  const rowHeight = 9;
+  doc.setFontSize(11);
+  rows.forEach(([label, value], i) => {
+    if (i > 0) {
+      doc.setDrawColor(LINE);
+      doc.line(marginX, y - rowHeight + 4, marginX + contentWidth, y - rowHeight + 4);
+    }
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(MUTED);
+    doc.text(label, marginX, y);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(INK);
+    doc.text(value, marginX + contentWidth, y, { align: "right" });
+    y += rowHeight;
+  });
+
+  // Montant payé, mis en avant
+  y += 6;
+  doc.setDrawColor(BRAND);
+  doc.setLineWidth(0.6);
+  doc.line(marginX, y, marginX + contentWidth, y);
+  y += 12;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(12);
+  doc.setTextColor(INK);
+  doc.text("Montant payé", marginX, y);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.setTextColor(BRAND);
+  doc.text(pdfSafe(fcfa(d.amount)), marginX + contentWidth, y, { align: "right" });
+  doc.setLineWidth(0.2);
+
+  // Pied de page
+  const pageHeight = doc.internal.pageSize.getHeight();
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(MUTED);
+  doc.text(
+    "Document généré automatiquement par LoyerAlert.",
+    marginX,
+    pageHeight - 15,
+  );
+
+  doc.save(`recu-${d.reference}.pdf`);
 }
