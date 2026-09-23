@@ -1,192 +1,632 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
-import { useEffect, useId, useState } from "react";
-import { toast } from "sonner";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({
-    meta: [
-      { title: "Connexion — LoyerAlert" },
-      { name: "description", content: "Connectez-vous à LoyerAlert pour suivre vos loyers et relancer vos locataires." },
-      { property: "og:title", content: "Connexion — LoyerAlert" },
-      { property: "og:description", content: "Accédez à votre espace propriétaire LoyerAlert." },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-    ],
-  }),
   component: AuthPage,
 });
 
+type AuthMode = "login" | "register";
+
 function AuthPage() {
   const navigate = useNavigate();
-  const [loading, setLoading] = useState(false);
+
+  const [mode, setMode] = useState<AuthMode>("login");
+
+  const [fullName, setFullName] = useState("");
+  const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [sent, setSent] = useState(false);
-  const [consent, setConsent] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  // Empêche plusieurs redirections simultanées.
+  const redirectingRef = useRef(false);
+
+  /*
+   * ============================================================
+   * REDIRECTION SELON LE RÔLE
+   *
+   * admin / super_admin → /admin
+   * user                 → /dashboard
+   *
+   * Aucune erreur de rôle ne doit être transformée
+   * automatiquement en utilisateur normal.
+   * ============================================================
+   */
+  const redirectAfterLogin = async (userId: string) => {
+    if (redirectingRef.current) {
+      return;
+    }
+
+    redirectingRef.current = true;
+
+    console.log("[Auth] Vérification du rôle :", userId);
+
+    try {
+      const { data: roles, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+
+      console.log("[Auth] Rôles :", roles);
+      console.log("[Auth] Erreur rôle :", roleError);
+
+      /*
+       * IMPORTANT :
+       * Si la requête des rôles échoue, on ne redirige nulle part.
+       */
+      if (roleError) {
+        console.error(
+          "[Auth] Impossible de récupérer le rôle :",
+          roleError,
+        );
+
+        redirectingRef.current = false;
+
+        setError(
+          "Impossible de déterminer les droits de votre compte. Veuillez réessayer.",
+        );
+
+        return;
+      }
+
+      const validRoles = roles ?? [];
+
+      /*
+       * ============================================================
+       * ADMIN / SUPER ADMIN
+       * ============================================================
+       */
+
+      const isAdmin = validRoles.some(
+        (row) =>
+          row.role === "admin" ||
+          row.role === "super_admin",
+      );
+
+      if (isAdmin) {
+        console.log("[Auth] ADMIN → /admin");
+
+        await navigate({
+          to: "/admin",
+          replace: true,
+        });
+
+        return;
+      }
+
+      /*
+       * ============================================================
+       * UTILISATEUR NORMAL
+       * ============================================================
+       */
+
+      const isUser = validRoles.some(
+        (row) => row.role === "user",
+      );
+
+      if (!isUser) {
+        console.error(
+          "[Auth] Rôle inconnu ou non autorisé :",
+          validRoles,
+        );
+
+        redirectingRef.current = false;
+
+        setError(
+          "Votre compte ne possède pas un rôle valide. Contactez l'administrateur.",
+        );
+
+        return;
+      }
+
+      console.log("[Auth] UTILISATEUR → /dashboard");
+
+      await navigate({
+        to: "/dashboard",
+        replace: true,
+      });
+    } catch (err) {
+      console.error(
+        "[Auth] Erreur pendant la redirection :",
+        err,
+      );
+
+      redirectingRef.current = false;
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Impossible de déterminer l'espace de votre compte.",
+      );
+    }
+  };
+
+  /*
+   * ============================================================
+   * SESSION EXISTANTE
+   * ============================================================
+   *
+   * Si l'utilisateur arrive déjà connecté sur /auth,
+   * on l'envoie directement dans son espace.
+   * ============================================================
+   */
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      if (data.session) navigate({ to: "/dashboard", replace: true });
-    });
-  }, [navigate]);
+    let mounted = true;
 
-  async function signIn(e: React.FormEvent) {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    setLoading(false);
-    if (error) { toast.error("Connexion impossible : e-mail ou mot de passe incorrect."); return; }
-    navigate({ to: "/dashboard", replace: true });
-  }
+    const checkSession = async () => {
+      const { data, error: sessionError } =
+        await supabase.auth.getSession();
 
-  async function signUp(e: React.FormEvent) {
-    e.preventDefault();
-    if (!consent) {
-      toast.error("Merci d'accepter la politique de confidentialité pour créer votre compte.");
+      if (!mounted) {
+        return;
+      }
+
+      if (sessionError) {
+        console.error(
+          "[Auth] Erreur session :",
+          sessionError,
+        );
+
+        return;
+      }
+
+      if (!data.session?.user) {
+        return;
+      }
+
+      /*
+       * Ne pas lancer une deuxième redirection si une connexion
+       * est déjà en cours.
+       */
+      if (redirectingRef.current) {
+        return;
+      }
+
+      await redirectAfterLogin(data.session.user.id);
+    };
+
+    void checkSession();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  /*
+   * ============================================================
+   * CONNEXION
+   * ============================================================
+   */
+
+  const handleLogin = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (loading || redirectingRef.current) {
       return;
     }
+
+    setError("");
+    setSuccess("");
     setLoading(true);
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: window.location.origin, data: { full_name: fullName } },
-    });
-    setLoading(false);
-    if (error) { toast.error(error.message); return; }
-    if (!data.session) {
-      setSent(true);
-      toast.success("Vérifiez votre e-mail pour confirmer votre compte.");
+
+    try {
+      const { data, error: loginError } =
+        await supabase.auth.signInWithPassword({
+          email: email.trim(),
+          password,
+        });
+
+      if (loginError) {
+        setError(loginError.message);
+        return;
+      }
+
+      if (!data.user) {
+        setError(
+          "Connexion impossible. Utilisateur introuvable.",
+        );
+
+        return;
+      }
+
+      /*
+       * Vérification obligatoire du rôle.
+       */
+      await redirectAfterLogin(data.user.id);
+    } catch (err) {
+      console.error(
+        "[Auth] Erreur de connexion :",
+        err,
+      );
+
+      redirectingRef.current = false;
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Une erreur est survenue pendant la connexion.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /*
+   * ============================================================
+   * INSCRIPTION
+   * ============================================================
+   */
+
+  const handleRegister = async (
+    event: React.FormEvent,
+  ) => {
+    event.preventDefault();
+
+    setError("");
+    setSuccess("");
+
+    if (!fullName.trim()) {
+      setError(
+        "Veuillez renseigner votre nom complet.",
+      );
       return;
     }
-    navigate({ to: "/dashboard", replace: true });
-  }
 
-  async function google() {
-    // Intégration officielle Supabase : redirige vers Google puis revient sur
-    // cette page, où le useEffect ci-dessus détecte la session et envoie
-    // l'utilisateur vers /dashboard. Aucune dépendance à un service tiers.
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth` },
-    });
-    if (error) toast.error("Connexion Google impossible. Réessayez.");
-    // En cas de succès, le navigateur est redirigé vers Google : rien d'autre à faire ici.
-  }
+    if (!phone.trim()) {
+      setError(
+        "Veuillez renseigner votre numéro de téléphone.",
+      );
+      return;
+    }
 
-  async function forgot() {
-    if (!email) { toast.error("Saisissez d'abord votre e-mail."); return; }
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    if (error) { toast.error(error.message); return; }
-    toast.success("Un lien de réinitialisation vous a été envoyé.");
-  }
+    if (password.length < 6) {
+      setError(
+        "Le mot de passe doit contenir au moins 6 caractères.",
+      );
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError(
+        "Les deux mots de passe ne correspondent pas.",
+      );
+      return;
+    }
+
+    if (loading || redirectingRef.current) {
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data, error: signUpError } =
+        await supabase.auth.signUp({
+          email: email.trim(),
+          password,
+          options: {
+            data: {
+              full_name: fullName.trim(),
+              phone: phone.trim(),
+            },
+          },
+        });
+
+      if (signUpError) {
+        setError(signUpError.message);
+        return;
+      }
+
+      /*
+       * Confirmation email obligatoire.
+       */
+      if (!data.session) {
+        setSuccess(
+          "Votre compte a été créé. Vérifiez votre adresse email pour confirmer votre compte.",
+        );
+
+        setMode("login");
+        setPassword("");
+        setConfirmPassword("");
+
+        return;
+      }
+
+      /*
+       * Si Supabase connecte directement l'utilisateur,
+       * on vérifie immédiatement son rôle.
+       */
+      if (data.user) {
+        await redirectAfterLogin(data.user.id);
+      }
+    } catch (err) {
+      console.error(
+        "[Auth] Erreur inscription :",
+        err,
+      );
+
+      redirectingRef.current = false;
+
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Une erreur est survenue pendant l'inscription.",
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /*
+   * ============================================================
+   * CHANGEMENT LOGIN / INSCRIPTION
+   * ============================================================
+   */
+
+  const switchMode = (nextMode: AuthMode) => {
+    if (loading || redirectingRef.current) {
+      return;
+    }
+
+    setMode(nextMode);
+    setError("");
+    setSuccess("");
+  };
+
+  const isLogin = mode === "login";
+
+  /*
+   * ============================================================
+   * INTERFACE
+   * ============================================================
+   */
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md">
-        <Link to="/" className="mb-6 block text-center font-display text-xl font-bold tracking-wide text-primary">
-          LOYERALERT
-        </Link>
-        <h1 className="mb-4 text-center font-display text-2xl font-bold">
-          Connexion à votre espace propriétaire
-        </h1>
-        <div className="surface p-6">
-          {sent ? (
-            <p className="text-sm text-muted-foreground">
-              Un e-mail de confirmation vous a été envoyé. Cliquez sur le lien reçu puis revenez vous
-              connecter.
+        <div className="surface overflow-hidden rounded-3xl p-6 shadow-xl sm:p-8">
+
+          {/* Logo / titre */}
+          <div className="mb-7 text-center">
+            <h1 className="font-display text-3xl font-bold tracking-tight">
+              LoyerAlert
+            </h1>
+
+            <p className="mt-2 text-sm text-muted-foreground">
+              {isLogin
+                ? "Connectez-vous à votre espace"
+                : "Créez votre compte LoyerAlert"}
             </p>
-          ) : (
-            <Tabs defaultValue="signin">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="signin">Connexion</TabsTrigger>
-                <TabsTrigger value="signup">Créer un compte</TabsTrigger>
-              </TabsList>
-
-              <TabsContent value="signin">
-                <form onSubmit={signIn} className="mt-4 space-y-4">
-                  <Field label="E-mail" value={email} onChange={setEmail} type="email" />
-                  <Field label="Mot de passe" value={password} onChange={setPassword} type="password" />
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Connexion…" : "Se connecter"}
-                  </Button>
-                  <button type="button" onClick={forgot} className="w-full text-sm text-muted-foreground underline">
-                    Mot de passe oublié ?
-                  </button>
-                </form>
-              </TabsContent>
-
-              <TabsContent value="signup">
-                <form onSubmit={signUp} className="mt-4 space-y-4">
-                  <Field label="Nom complet" value={fullName} onChange={setFullName} />
-                  <Field label="E-mail" value={email} onChange={setEmail} type="email" />
-                  <Field label="Mot de passe" value={password} onChange={setPassword} type="password" />
-                  <label className="flex items-start gap-2 text-xs text-muted-foreground">
-                    <Checkbox
-                      checked={consent}
-                      onCheckedChange={(v) => setConsent(v === true)}
-                      className="mt-0.5"
-                      aria-label="Consentement au traitement des données"
-                    />
-                    <span>
-                      J'accepte que mes informations soient enregistrées pour gérer mon compte, conformément à la{" "}
-                      <Link to="/confidentialite" className="underline">
-                        politique de confidentialité
-                      </Link>{" "}
-                      et à la{" "}
-                      <Link to="/cookies" className="underline">
-                        politique de cookies
-                      </Link>
-                      .
-                    </span>
-                  </label>
-                  <Button type="submit" className="w-full" disabled={loading || !consent}>
-                    {loading ? "Création…" : "Créer mon compte"}
-                  </Button>
-                  <p className="text-center text-xs text-muted-foreground">
-                    30 jours d'essai gratuit, sans carte bancaire.
-                  </p>
-                </form>
-              </TabsContent>
-            </Tabs>
-          )}
-
-          <div className="my-5 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" /> ou <span className="h-px flex-1 bg-border" />
           </div>
-          <Button variant="outline" className="w-full" onClick={google}>
-            Continuer avec Google
-          </Button>
+
+          {/* Onglets */}
+          <div className="mb-6 grid grid-cols-2 rounded-xl bg-muted p-1">
+            <button
+              type="button"
+              onClick={() => switchMode("login")}
+              disabled={loading}
+              className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${
+                isLogin
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Se connecter
+            </button>
+
+            <button
+              type="button"
+              onClick={() => switchMode("register")}
+              disabled={loading}
+              className={`rounded-lg px-4 py-2.5 text-sm font-semibold transition-all ${
+                !isLogin
+                  ? "bg-background text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              S'inscrire
+            </button>
+          </div>
+
+          {/* Message erreur */}
+          {error ? (
+            <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          ) : null}
+
+          {/* Message succès */}
+          {success ? (
+            <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-700">
+              {success}
+            </div>
+          ) : null}
+
+          {/* Formulaire */}
+          <form
+            onSubmit={
+              isLogin
+                ? handleLogin
+                : handleRegister
+            }
+            className="space-y-4"
+          >
+            {!isLogin ? (
+              <>
+                <div>
+                  <label
+                    htmlFor="fullName"
+                    className="mb-1.5 block text-sm font-medium"
+                  >
+                    Nom complet
+                  </label>
+
+                  <input
+                    id="fullName"
+                    type="text"
+                    autoComplete="name"
+                    value={fullName}
+                    onChange={(event) =>
+                      setFullName(event.target.value)
+                    }
+                    placeholder="Ex. Dan Kienou"
+                    required
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="phone"
+                    className="mb-1.5 block text-sm font-medium"
+                  >
+                    Téléphone
+                  </label>
+
+                  <input
+                    id="phone"
+                    type="tel"
+                    autoComplete="tel"
+                    value={phone}
+                    onChange={(event) =>
+                      setPhone(event.target.value)
+                    }
+                    placeholder="Ex. +226 XX XX XX XX"
+                    required
+                    className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                  />
+                </div>
+              </>
+            ) : null}
+
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Adresse email
+              </label>
+
+              <input
+                id="email"
+                type="email"
+                autoComplete="email"
+                value={email}
+                onChange={(event) =>
+                  setEmail(event.target.value)
+                }
+                placeholder="vous@example.com"
+                required
+                className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-sm font-medium"
+              >
+                Mot de passe
+              </label>
+
+              <input
+                id="password"
+                type="password"
+                autoComplete={
+                  isLogin
+                    ? "current-password"
+                    : "new-password"
+                }
+                value={password}
+                onChange={(event) =>
+                  setPassword(event.target.value)
+                }
+                placeholder="••••••••"
+                required
+                className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+              />
+            </div>
+
+            {!isLogin ? (
+              <div>
+                <label
+                  htmlFor="confirmPassword"
+                  className="mb-1.5 block text-sm font-medium"
+                >
+                  Confirmer le mot de passe
+                </label>
+
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  value={confirmPassword}
+                  onChange={(event) =>
+                    setConfirmPassword(event.target.value)
+                  }
+                  placeholder="••••••••"
+                  required
+                  className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
+                />
+              </div>
+            ) : null}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {loading
+                ? isLogin
+                  ? "Connexion..."
+                  : "Création du compte..."
+                : isLogin
+                  ? "Se connecter"
+                  : "Créer mon compte"}
+            </button>
+          </form>
+
+          {/* Bas du formulaire */}
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            {isLogin ? (
+              <>
+                Vous n'avez pas encore de compte ?{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    switchMode("register")
+                  }
+                  disabled={loading}
+                  className="font-semibold text-primary hover:underline"
+                >
+                  Créer un compte
+                </button>
+              </>
+            ) : (
+              <>
+                Vous avez déjà un compte ?{" "}
+                <button
+                  type="button"
+                  onClick={() =>
+                    switchMode("login")
+                  }
+                  disabled={loading}
+                  className="font-semibold text-primary hover:underline"
+                >
+                  Se connecter
+                </button>
+              </>
+            )}
+          </div>
+
         </div>
       </div>
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-  type = "text",
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  type?: string;
-}) {
-  const id = useId();
-  return (
-    <div className="space-y-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} type={type} value={value} required onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 }

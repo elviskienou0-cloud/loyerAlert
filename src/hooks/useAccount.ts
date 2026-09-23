@@ -11,6 +11,7 @@ export type Account = {
   property_limit: number;
   property_count: number;
   is_admin: boolean;
+  is_super_admin: boolean;
   has_access: boolean;
   pending_request: { plan: string; amount: number; created_at: string } | null;
   last_rejection: string | null;
@@ -23,7 +24,36 @@ export function useAccount() {
     queryFn: async (): Promise<Account> => {
       const { data, error } = await supabase.rpc("my_account");
       if (error) throw error;
-      return data as unknown as Account;
+
+      const account = data as unknown as Account;
+      const { data: userData } = await supabase.auth.getUser();
+
+      if (!userData.user) {
+        return {
+          ...account,
+          is_admin: false,
+          is_super_admin: false,
+        };
+      }
+
+      const { data: roleRows, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userData.user.id);
+
+      if (roleError) throw roleError;
+
+      const isSuperAdmin =
+        roleRows?.some((row) => row.role === "super_admin") ?? false;
+      const isAdmin =
+        isSuperAdmin ||
+        (roleRows?.some((row) => row.role === "admin") ?? false);
+
+      return {
+        ...account,
+        is_admin: isAdmin,
+        is_super_admin: isSuperAdmin,
+      };
     },
     staleTime: 60_000,
     retry: 2,

@@ -1,13 +1,35 @@
-import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
 import { BarChart3, CreditCard, FileClock, LifeBuoy, Receipt, Users } from "lucide-react";
-import { useAccount } from "@/hooks/useAccount";
 import { useAdminNotifications, usePendingRequestsCount } from "@/hooks/useAdminNotifications";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin")({
+  beforeLoad: async () => {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+
+    if (userError || !userData.user) {
+      throw redirect({ to: "/auth" });
+    }
+
+    const { data: roleRows, error: roleError } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userData.user.id);
+
+    if (roleError) {
+      throw redirect({ to: "/auth" });
+    }
+
+    const isAdmin =
+      roleRows?.some(
+        (row) => row.role === "admin" || row.role === "super_admin",
+      ) ?? false;
+
+    if (!isAdmin) {
+      throw redirect({ to: "/dashboard", replace: true });
+    }
+  },
   head: () => ({
     meta: [
       { title: "Administration — LoyerAlert" },
@@ -31,38 +53,11 @@ const LINKS = [
 ] as const;
 
 function AdminLayout() {
-  const { data: account, isLoading, isError } = useAccount();
-  const navigate = useNavigate();
   const path = useRouterState({ select: (s) => s.location.pathname });
+  const isAdmin = true;
 
-  const isAdmin = Boolean(account?.is_admin);
   useAdminNotifications(isAdmin);
   const pending = usePendingRequestsCount(isAdmin);
-
-  const denied = !isLoading && (isError || !account?.is_admin);
-
-
-  useEffect(() => {
-    if (!denied) return;
-    const t = setTimeout(() => void navigate({ to: "/dashboard", replace: true }), 2500);
-    return () => clearTimeout(t);
-  }, [denied, navigate]);
-
-  if (isLoading) return <Skeleton className="h-64 w-full" />;
-
-  if (denied) {
-    return (
-      <div className="surface mx-auto max-w-md p-8 text-center">
-        <h1 className="font-display text-2xl font-bold">Accès refusé</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Cet espace est strictement réservé aux administrateurs. Redirection vers votre espace…
-        </p>
-        <Button className="mt-5" onClick={() => void navigate({ to: "/dashboard", replace: true })}>
-          Retour à mon espace
-        </Button>
-      </div>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-4 md:flex-row">
