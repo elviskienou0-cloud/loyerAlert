@@ -20,7 +20,13 @@ import { useAccount } from "@/hooks/useAccount";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,6 +64,7 @@ const MORE_NAV = [
 function useSignOut() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
   return async function signOut() {
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -69,7 +76,11 @@ function useSignOut() {
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: account } = useAccount();
   const { data: profile } = useProfile();
-  const path = useRouterState({ select: (s) => s.location.pathname });
+
+  const path = useRouterState({
+    select: (s) => s.location.pathname,
+  });
+
   const signOut = useSignOut();
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -85,6 +96,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   );
 
   const firstName = (profile?.full_name ?? "").split(" ")[0] || "";
+
   const initials =
     (profile?.full_name ?? profile?.email ?? "?")
       .split(" ")
@@ -92,6 +104,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       .join("")
       .slice(0, 2)
       .toUpperCase() || "?";
+
   const notifications = account?.pending_request ? 1 : 0;
 
   return (
@@ -112,12 +125,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           {SIDE_NAV.map((item) => {
             const Icon = item.icon;
             const active = path.startsWith(item.to);
+
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all duration-200 hover:bg-primary/5 hover:text-foreground",
+                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors duration-150 hover:bg-primary/5 hover:text-foreground",
                   active && "bg-primary/10 text-primary",
                 )}
               >
@@ -131,38 +145,52 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="border-t border-border p-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors hover:bg-muted">
+              <button className="flex w-full items-center gap-3 rounded-xl p-2 text-left transition-colors duration-150 hover:bg-muted">
                 <span className="grid size-9 shrink-0 place-items-center rounded-full bg-primary/10 text-xs font-bold text-primary">
                   {initials}
                 </span>
+
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">
                     {profile?.full_name ?? "Mon compte"}
                   </span>
-                  <span className="block truncate text-xs text-muted-foreground">{profile?.email}</span>
+
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {profile?.email}
+                  </span>
                 </span>
+
                 <MoreHorizontal className="size-4 text-muted-foreground" />
               </button>
             </DropdownMenuTrigger>
+
             <DropdownMenuContent align="start" className="w-52">
               <DropdownMenuItem asChild>
                 <Link to="/profil">
-                  <User className="mr-2 size-4" /> Profil
+                  <User className="mr-2 size-4" />
+                  Profil
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuItem asChild>
                 <Link to="/parametres">
-                  <Settings className="mr-2 size-4" /> Paramètres
+                  <Settings className="mr-2 size-4" />
+                  Paramètres
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuItem asChild>
                 <Link to="/assistance">
-                  <LifeBuoy className="mr-2 size-4" /> Assistance
+                  <LifeBuoy className="mr-2 size-4" />
+                  Assistance
                 </Link>
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem onSelect={() => void signOut()}>
-                <LogOut className="mr-2 size-4" /> Se déconnecter
+                <LogOut className="mr-2 size-4" />
+                Se déconnecter
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -177,12 +205,19 @@ export function AppShell({ children }: { children: ReactNode }) {
               <p className="truncate font-display text-base font-bold">
                 Bonjour{firstName ? ` ${firstName}` : ""} 👋
               </p>
-              <p className="truncate text-xs text-muted-foreground">{today}</p>
+
+              <p className="truncate text-xs text-muted-foreground">
+                {today}
+              </p>
             </div>
 
             <div className="relative hidden lg:block">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Rechercher…" className="w-64 pl-9" aria-label="Rechercher" />
+              <Input
+                placeholder="Rechercher…"
+                className="w-64 pl-9"
+                aria-label="Rechercher"
+              />
             </div>
 
             <LanguageSwitcher compact />
@@ -191,13 +226,18 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Button variant="ghost" size="icon" aria-label="Notifications">
                 <Bell className="size-5" />
               </Button>
+
               {notifications > 0 ? (
                 <span className="absolute right-1.5 top-1.5 size-2 pulse-soft rounded-full bg-destructive" />
               ) : null}
             </Link>
 
             <Link to="/assistance" className="hidden sm:block">
-              <Button variant="ghost" size="icon" aria-label="Assistance">
+              <Button
+                variant="ghost"
+                size="icon"
+                aria-label="Assistance"
+              >
                 <LifeBuoy className="size-5" />
               </Button>
             </Link>
@@ -213,7 +253,15 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </header>
 
-        <main key={path} className="page-enter mx-auto w-full max-w-6xl px-4 py-5 pb-28 md:px-6 md:pb-10">
+        {/* 
+          IMPORTANT :
+          - Pas de key={path}
+          - Pas de page-enter
+
+          Le contenu n'est donc pas démonté/remonté artificiellement
+          à chaque changement de route.
+        */}
+        <main className="mx-auto w-full max-w-6xl px-4 py-5 pb-28 md:px-6 md:pb-10">
           {children}
         </main>
       </div>
@@ -224,12 +272,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           {TAB_NAV.map((item) => {
             const Icon = item.icon;
             const active = path.startsWith(item.to);
+
             return (
               <Link
                 key={item.to}
                 to={item.to}
                 className={cn(
-                  "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors active:scale-95",
+                  "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors duration-150 active:scale-95",
                   active && "text-primary",
                 )}
               >
@@ -238,46 +287,52 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
             );
           })}
+
           <Sheet open={moreOpen} onOpenChange={setMoreOpen}>
             <SheetTrigger asChild>
-              <button className="flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors active:scale-95">
+              <button className="flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors duration-150 active:scale-95">
                 <MoreHorizontal className="size-5" />
                 Plus
               </button>
             </SheetTrigger>
+
             <SheetContent side="bottom" className="rounded-t-2xl">
               <SheetHeader>
                 <SheetTitle>Plus</SheetTitle>
               </SheetHeader>
+
               <div className="mt-2 space-y-1 pb-6">
                 {MORE_NAV.map((item) => {
                   const Icon = item.icon;
+
                   return (
                     <Link
                       key={item.label}
                       to={item.to}
                       onClick={() => setMoreOpen(false)}
-                      className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors hover:bg-muted"
+                      className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-150 hover:bg-muted"
                     >
                       <Icon className="size-[18px] text-primary" />
                       {item.label}
                     </Link>
                   );
                 })}
+
                 <Link
                   to="/assistance"
                   onClick={() => setMoreOpen(false)}
-                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors hover:bg-muted"
+                  className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-150 hover:bg-muted"
                 >
                   <LifeBuoy className="size-[18px] text-primary" />
                   Assistance
                 </Link>
+
                 <button
                   onClick={() => {
                     setMoreOpen(false);
                     void signOut();
                   }}
-                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-destructive transition-colors duration-150 hover:bg-destructive/10"
                 >
                   <LogOut className="size-[18px]" />
                   Déconnexion

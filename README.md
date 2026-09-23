@@ -353,7 +353,7 @@ Maximum 3 logements.
 
 STARTER
 
-1 000 FCFA/mois
+5 000 FCFA/mois
 
 Maximum 10 logements.
 

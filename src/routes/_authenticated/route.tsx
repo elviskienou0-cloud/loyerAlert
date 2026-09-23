@@ -1,5 +1,12 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  redirect,
+  useLocation,
+} from "@tanstack/react-router";
+
 import { supabase } from "@/integrations/supabase/client";
+import { AppShell } from "@/components/AppShell";
 
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
@@ -22,7 +29,7 @@ export const Route = createFileRoute("/_authenticated")({
     const user = userData.user;
 
     // ============================================================
-    // 2. Récupérer les rôles depuis user_roles
+    // 2. Récupérer les rôles
     // ============================================================
 
     const { data: roleRows, error: roleError } = await supabase
@@ -71,20 +78,10 @@ export const Route = createFileRoute("/_authenticated")({
     // ============================================================
     // 4. ADMIN / SUPER ADMIN
     // ============================================================
-    //
-    // Les administrateurs :
-    // - peuvent accéder à /admin
-    // - ne sont jamais bloqués par l'abonnement
-    // - ne doivent jamais être envoyés vers /dashboard
-    //
-    // ============================================================
 
     if (hasAdminRole) {
       if (!isAdminArea) {
-        console.log(
-          "[Auth] ADMIN → /admin",
-          pathname,
-        );
+        console.log("[Auth] ADMIN → /admin", pathname);
 
         throw redirect({
           to: "/admin",
@@ -118,7 +115,7 @@ export const Route = createFileRoute("/_authenticated")({
     }
 
     // ============================================================
-    // 6. UTILISATEUR NORMAL QUI ESSAIE D'ACCÉDER À /admin
+    // 6. UTILISATEUR NORMAL → /admin INTERDIT
     // ============================================================
 
     if (isAdminArea) {
@@ -137,8 +134,8 @@ export const Route = createFileRoute("/_authenticated")({
     // 7. PAGE ABONNEMENT
     // ============================================================
     //
-    // Cette page reste toujours accessible aux utilisateurs
-    // normaux afin qu'ils puissent renouveler leur abonnement.
+    // /abonnement reste toujours accessible afin de permettre
+    // le renouvellement même lorsque l'abonnement est expiré.
     //
     // ============================================================
 
@@ -153,13 +150,6 @@ export const Route = createFileRoute("/_authenticated")({
 
     // ============================================================
     // 8. Vérifier l'accès à l'application
-    // ============================================================
-    //
-    // IMPORTANT :
-    // La fonction PostgreSQL utilise :
-    //
-    // has_access(p_user_id uuid)
-    //
     // ============================================================
 
     const {
@@ -181,10 +171,7 @@ export const Route = createFileRoute("/_authenticated")({
       });
     }
 
-    console.log(
-      "[Subscription] Accès :",
-      hasAccess,
-    );
+    console.log("[Subscription] Accès :", hasAccess);
 
     // ============================================================
     // 9. ABONNEMENT EXPIRÉ / SUSPENDU
@@ -214,12 +201,28 @@ export const Route = createFileRoute("/_authenticated")({
   },
 
   // ============================================================
-  // IMPORTANT :
-  // Aucun AppShell ici.
-  //
-  // Le layout client et le layout administrateur doivent gérer
-  // leur propre interface.
+  // LAYOUT AUTHENTIFIÉ
   // ============================================================
 
-  component: Outlet,
+  component: AuthenticatedLayout,
 });
+
+function AuthenticatedLayout() {
+  const location = useLocation();
+
+  const isAdminArea =
+    location.pathname === "/admin" ||
+    location.pathname.startsWith("/admin/");
+
+  // Admin : interface indépendante, sans AppShell client.
+  if (isAdminArea) {
+    return <Outlet />;
+  }
+
+  // Utilisateur normal : sidebar + topbar persistantes.
+  return (
+    <AppShell>
+      <Outlet />
+    </AppShell>
+  );
+}

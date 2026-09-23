@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fcfa, PAYMENT_NUMBERS, PLANS, shortDate } from "@/lib/format";
+import { fcfa, PLANS, shortDate } from "@/lib/format";
 import { openSaspayCheckout } from "@/lib/saspay";
 import { cn } from "@/lib/utils";
 
@@ -49,9 +49,7 @@ function Subscription() {
   const { data: account, isLoading } = useAccount();
 
   const [plan, setPlan] = useState<string>("starter");
-  const [method, setMethod] = useState<
-    "orange_money" | "moov_money" | "saspay"
-  >("saspay");
+  const method = "saspay" as const;
   const [senderPhone, setSenderPhone] = useState("");
   const [reference, setReference] = useState("");
   const [paidAt, setPaidAt] = useState<string>(() =>
@@ -96,13 +94,6 @@ function Subscription() {
         throw new Error("Image trop lourde (3 Mo maximum).");
       }
 
-      if (
-        method !== "saspay" &&
-        senderPhone.replace(/\D/g, "").length < 8
-      ) {
-        throw new Error("Numéro de paiement invalide.");
-      }
-
       const { data: auth } = await supabase.auth.getUser();
 
       if (!auth.user) {
@@ -138,8 +129,8 @@ function Subscription() {
       const { error } = await supabase.from("payment_requests").insert({
         plan: chosen.id,
         amount: chosen.price,
-        payment_method: method,
-        payment_channel: method === "saspay" ? "saspay" : "manual",
+        payment_method: "saspay",
+        payment_channel: "saspay",
         paid_at: paidAt,
         sender_phone: senderPhone.trim(),
         transaction_reference: reference.trim() || null,
@@ -310,35 +301,18 @@ function Subscription() {
               </p>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <PaymentMethodButton
-                selected={method === "saspay"}
-                onClick={() => setMethod("saspay")}
-              >
-                <p className="font-semibold">💳 SasPay</p>
-                <p className="text-sm text-muted-foreground">
-                  Paiement par lien sécurisé
-                </p>
-              </PaymentMethodButton>
-
-              {(
-                Object.keys(PAYMENT_NUMBERS) as (
-                  keyof typeof PAYMENT_NUMBERS
-                )[]
-              ).map((k) => (
-                <PaymentMethodButton
-                  key={k}
-                  selected={method === k}
-                  onClick={() => setMethod(k)}
-                >
-                  <p className="font-semibold">
-                    {PAYMENT_NUMBERS[k].label}
+            <div className="rounded-2xl border-2 border-primary/30 bg-primary/5 p-5 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary text-lg text-primary-foreground">
+                  💳
+                </div>
+                <div>
+                  <p className="font-semibold">SasPay</p>
+                  <p className="text-sm text-muted-foreground">
+                    Paiement par lien sécurisé
                   </p>
-                  <p className="text-lg font-bold tracking-wider">
-                    {PAYMENT_NUMBERS[k].number}
-                  </p>
-                </PaymentMethodButton>
-              ))}
+                </div>
+              </div>
             </div>
 
             {method === "saspay" ? (
@@ -395,8 +369,7 @@ function Subscription() {
 
               <div className="space-y-1.5">
                 <Label>
-                  Numéro ayant effectué le paiement
-                  {method === "saspay" ? " (facultatif)" : ""}
+                  Numéro ayant effectué le paiement (facultatif)
                 </Label>
 
                 <Input
@@ -408,9 +381,7 @@ function Subscription() {
 
               <div className="space-y-1.5">
                 <Label>
-                  {method === "saspay"
-                    ? "Référence SasPay (facultatif)"
-                    : "Référence de transaction (facultatif)"}
+                  Référence SasPay (facultatif)
                 </Label>
 
                 <Input
