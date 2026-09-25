@@ -22,6 +22,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedLocatairesRouteImport } from './routes/_authenticated/locataires'
 import { Route as AuthenticatedLogementsRouteImport } from './routes/_authenticated/logements'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
 import { Route as AuthenticatedPaiementsRouteImport } from './routes/_authenticated/paiements'
 import { Route as AuthenticatedParametresRouteImport } from './routes/_authenticated/parametres'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
@@ -96,6 +97,12 @@ const AuthenticatedLogementsRoute = AuthenticatedLogementsRouteImport.update({
   path: '/logements',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPaiementsRoute = AuthenticatedPaiementsRouteImport.update({
   id: '/paiements',
   path: '/paiements',
@@ -160,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/parametres': typeof AuthenticatedParametresRoute
   '/profil': typeof AuthenticatedProfilRoute
@@ -182,6 +190,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/logements': typeof AuthenticatedLogementsRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
   '/paiements': typeof AuthenticatedPaiementsRoute
   '/parametres': typeof AuthenticatedParametresRoute
   '/profil': typeof AuthenticatedProfilRoute
@@ -207,6 +216,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/locataires': typeof AuthenticatedLocatairesRouteWithChildren
   '/_authenticated/logements': typeof AuthenticatedLogementsRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/paiements': typeof AuthenticatedPaiementsRoute
   '/_authenticated/parametres': typeof AuthenticatedParametresRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
@@ -232,6 +242,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/locataires'
     | '/logements'
+    | '/notifications'
     | '/paiements'
     | '/parametres'
     | '/profil'
@@ -254,6 +265,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/locataires'
     | '/logements'
+    | '/notifications'
     | '/paiements'
     | '/parametres'
     | '/profil'
@@ -278,6 +290,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/locataires'
     | '/_authenticated/logements'
+    | '/_authenticated/notifications'
     | '/_authenticated/paiements'
     | '/_authenticated/parametres'
     | '/_authenticated/profil'
@@ -393,6 +406,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLogementsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/paiements': {
       id: '/_authenticated/paiements'
       path: '/paiements'
@@ -498,6 +518,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLocatairesRoute: typeof AuthenticatedLocatairesRouteWithChildren
   AuthenticatedLogementsRoute: typeof AuthenticatedLogementsRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedPaiementsRoute: typeof AuthenticatedPaiementsRoute
   AuthenticatedParametresRoute: typeof AuthenticatedParametresRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
@@ -509,6 +530,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLocatairesRoute: AuthenticatedLocatairesRouteWithChildren,
   AuthenticatedLogementsRoute: AuthenticatedLogementsRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedPaiementsRoute: AuthenticatedPaiementsRoute,
   AuthenticatedParametresRoute: AuthenticatedParametresRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,

@@ -51,7 +51,8 @@ const fr: Dict = {
   "landing.pricing": "Des tarifs adaptés",
   "landing.perMonth": "/mois",
   "landing.upTo": "Jusqu'à {n} logements",
-  "landing.payNote": "Paiement par Orange Money ou Moov Money, validé manuellement par notre équipe.",
+  "landing.payNote":
+    "Paiement par Orange Money ou Moov Money, validé manuellement par notre équipe.",
   "footer.region": "LoyerAlert — Afrique de l'Ouest",
   "footer.privacy": "Politique de confidentialité",
   "footer.cookies": "Cookies",
@@ -109,7 +110,8 @@ const fr: Dict = {
   "support.subject": "Sujet",
   "support.subjectPh": "Ex : Demande de paiement non validée",
   "support.message": "Message",
-  "support.messagePh": "Décrivez votre problème (logement, locataire, capture d'écran de paiement…)",
+  "support.messagePh":
+    "Décrivez votre problème (logement, locataire, capture d'écran de paiement…)",
   "support.send": "Envoyer à l'assistance",
   "support.direct": "Ou écrivez directement à",
   "support.back": "← Retour à l'accueil",
@@ -239,7 +241,8 @@ const pt: Dict = {
   "landing.pricing": "Planos adaptados",
   "landing.perMonth": "/mês",
   "landing.upTo": "Até {n} imóveis",
-  "landing.payNote": "Pagamento por Orange Money ou Moov Money, validado manualmente pela nossa equipa.",
+  "landing.payNote":
+    "Pagamento por Orange Money ou Moov Money, validado manualmente pela nossa equipa.",
   "footer.region": "LoyerAlert — África Ocidental",
   "footer.privacy": "Política de privacidade",
   "footer.cookies": "Cookies",
@@ -347,8 +350,7 @@ const es: Dict = {
   "auth.creating": "Creando…",
   "auth.createAccount": "Crear mi cuenta",
   "auth.forgot": "¿Olvidaste tu contraseña?",
-  "auth.consent":
-    "Acepto que mis datos se guarden para gestionar mi cuenta, conforme a la",
+  "auth.consent": "Acepto que mis datos se guarden para gestionar mi cuenta, conforme a la",
   "auth.and": "y a la",
   "auth.privacy": "política de privacidad",
   "auth.cookies": "política de cookies",
@@ -486,6 +488,17 @@ const ar: Dict = {
   "support.send": "إرسال إلى الدعم",
   "support.direct": "أو اكتب مباشرة إلى",
   "support.back": "← العودة إلى الرئيسية",
+  "app.home": "الرئيسية",
+  "app.properties": "العقارات",
+  "app.tenants": "المستأجرون",
+  "app.payments": "المدفوعات",
+  "app.subscription": "الاشتراك",
+  "app.profile": "الملف الشخصي",
+  "app.settings": "الإعدادات",
+  "app.support": "الدعم",
+  "app.signout": "تسجيل الخروج",
+  "app.more": "المزيد",
+  "app.notifications": "الإشعارات",
 };
 
 const DICTS: Record<Lang, Dict> = { fr, en, pt, es, ar };
@@ -539,12 +552,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   const t = useCallback(
     (key: string, vars?: Record<string, string | number>) => {
-      const raw = DICTS[lang][key] ?? DICTS['fr'][key] ?? key;
+      const raw = DICTS[lang][key] ?? DICTS["fr"][key] ?? key;
       if (!vars) return raw;
-      return Object.entries(vars).reduce(
-        (acc, [k, v]) => acc.replaceAll(`{${k}}`, String(v)),
-        raw,
-      );
+      return Object.entries(vars).reduce((acc, [k, v]) => acc.replaceAll(`{${k}}`, String(v)), raw);
     },
     [lang],
   );

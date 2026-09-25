@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/auth")({
@@ -23,172 +23,96 @@ function AuthPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Empêche plusieurs redirections simultanées.
   const redirectingRef = useRef(false);
 
   /*
    * ============================================================
-   * REDIRECTION SELON LE RÔLE
-   *
-   * admin / super_admin → /admin
-   * user                 → /dashboard
-   *
-   * Aucune erreur de rôle ne doit être transformée
-   * automatiquement en utilisateur normal.
+   * REDIRECTION APRÈS AUTHENTIFICATION
    * ============================================================
+   *
+   * IMPORTANT :
+   * On ne vérifie plus les rôles ici.
+   *
+   * Le rôle et l'abonnement sont gérés par :
+   *
+   * src/routes/_authenticated/route.tsx
+   *
+   * Cela évite d'avoir deux systèmes de contrôle différents.
    */
-  const redirectAfterLogin = async (userId: string) => {
+  const redirectAfterLogin = useCallback(async () => {
     if (redirectingRef.current) {
       return;
     }
 
     redirectingRef.current = true;
 
-    console.log("[Auth] Vérification du rôle :", userId);
-
     try {
-      const { data: roles, error: roleError } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", userId);
-
-      console.log("[Auth] Rôles :", roles);
-      console.log("[Auth] Erreur rôle :", roleError);
-
-      /*
-       * IMPORTANT :
-       * Si la requête des rôles échoue, on ne redirige nulle part.
-       */
-      if (roleError) {
-        console.error(
-          "[Auth] Impossible de récupérer le rôle :",
-          roleError,
-        );
-
-        redirectingRef.current = false;
-
-        setError(
-          "Impossible de déterminer les droits de votre compte. Veuillez réessayer.",
-        );
-
-        return;
-      }
-
-      const validRoles = roles ?? [];
-
-      /*
-       * ============================================================
-       * ADMIN / SUPER ADMIN
-       * ============================================================
-       */
-
-      const isAdmin = validRoles.some(
-        (row) =>
-          row.role === "admin" ||
-          row.role === "super_admin",
-      );
-
-      if (isAdmin) {
-        console.log("[Auth] ADMIN → /admin");
-
-        await navigate({
-          to: "/admin",
-          replace: true,
-        });
-
-        return;
-      }
-
-      /*
-       * ============================================================
-       * UTILISATEUR NORMAL
-       * ============================================================
-       */
-
-      const isUser = validRoles.some(
-        (row) => row.role === "user",
-      );
-
-      if (!isUser) {
-        console.error(
-          "[Auth] Rôle inconnu ou non autorisé :",
-          validRoles,
-        );
-
-        redirectingRef.current = false;
-
-        setError(
-          "Votre compte ne possède pas un rôle valide. Contactez l'administrateur.",
-        );
-
-        return;
-      }
-
-      console.log("[Auth] UTILISATEUR → /dashboard");
-
       await navigate({
         to: "/dashboard",
         replace: true,
       });
     } catch (err) {
-      console.error(
-        "[Auth] Erreur pendant la redirection :",
-        err,
-      );
+      console.error("[Auth] Erreur de redirection :", err);
 
       redirectingRef.current = false;
 
       setError(
         err instanceof Error
           ? err.message
-          : "Impossible de déterminer l'espace de votre compte.",
+          : "Impossible d'accéder à votre espace.",
       );
     }
-  };
+  }, [navigate]);
 
   /*
    * ============================================================
    * SESSION EXISTANTE
    * ============================================================
    *
-   * Si l'utilisateur arrive déjà connecté sur /auth,
-   * on l'envoie directement dans son espace.
-   * ============================================================
+   * Si l'utilisateur est déjà connecté et revient sur /auth,
+   * on laisse le routeur authentifié déterminer son espace.
    */
-
   useEffect(() => {
     let mounted = true;
 
     const checkSession = async () => {
-      const { data, error: sessionError } =
-        await supabase.auth.getSession();
+      try {
+        const {
+          data,
+          error: sessionError,
+        } = await supabase.auth.getSession();
 
-      if (!mounted) {
-        return;
-      }
+        if (!mounted) {
+          return;
+        }
 
-      if (sessionError) {
-        console.error(
-          "[Auth] Erreur session :",
-          sessionError,
+        if (sessionError) {
+          console.error("[Auth] Erreur session :", sessionError);
+          return;
+        }
+
+        if (!data.session?.user) {
+          return;
+        }
+
+        if (redirectingRef.current) {
+          return;
+        }
+
+        await redirectAfterLogin();
+      } catch (err) {
+        if (!mounted) {
+          return;
+        }
+
+        console.error("[Auth] Erreur vérification session :", err);
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Impossible de vérifier votre session.",
         );
-
-        return;
       }
-
-      if (!data.session?.user) {
-        return;
-      }
-
-      /*
-       * Ne pas lancer une deuxième redirection si une connexion
-       * est déjà en cours.
-       */
-      if (redirectingRef.current) {
-        return;
-      }
-
-      await redirectAfterLogin(data.session.user.id);
     };
 
     void checkSession();
@@ -196,14 +120,13 @@ function AuthPage() {
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [redirectAfterLogin]);
 
   /*
    * ============================================================
    * CONNEXION
    * ============================================================
    */
-
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
 
@@ -216,34 +139,39 @@ function AuthPage() {
     setLoading(true);
 
     try {
-      const { data, error: loginError } =
-        await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+      const {
+        data,
+        error: loginError,
+      } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
 
       if (loginError) {
         setError(loginError.message);
         return;
       }
 
-      if (!data.user) {
+      if (!data.session || !data.user) {
         setError(
-          "Connexion impossible. Utilisateur introuvable.",
+          "Connexion impossible. Aucune session utilisateur n'a été créée.",
         );
-
         return;
       }
 
       /*
-       * Vérification obligatoire du rôle.
+       * La connexion Supabase est réussie.
+       *
+       * On redirige immédiatement vers /dashboard.
+       * Le parent _authenticated décide ensuite :
+       *
+       * - admin       → /admin
+       * - utilisateur → dashboard
+       * - sans accès  → /abonnement
        */
-      await redirectAfterLogin(data.user.id);
+      await redirectAfterLogin();
     } catch (err) {
-      console.error(
-        "[Auth] Erreur de connexion :",
-        err,
-      );
+      console.error("[Auth] Erreur de connexion :", err);
 
       redirectingRef.current = false;
 
@@ -262,40 +190,29 @@ function AuthPage() {
    * INSCRIPTION
    * ============================================================
    */
-
-  const handleRegister = async (
-    event: React.FormEvent,
-  ) => {
+  const handleRegister = async (event: React.FormEvent) => {
     event.preventDefault();
 
     setError("");
     setSuccess("");
 
     if (!fullName.trim()) {
-      setError(
-        "Veuillez renseigner votre nom complet.",
-      );
+      setError("Veuillez renseigner votre nom complet.");
       return;
     }
 
     if (!phone.trim()) {
-      setError(
-        "Veuillez renseigner votre numéro de téléphone.",
-      );
+      setError("Veuillez renseigner votre numéro de téléphone.");
       return;
     }
 
     if (password.length < 6) {
-      setError(
-        "Le mot de passe doit contenir au moins 6 caractères.",
-      );
+      setError("Le mot de passe doit contenir au moins 6 caractères.");
       return;
     }
 
     if (password !== confirmPassword) {
-      setError(
-        "Les deux mots de passe ne correspondent pas.",
-      );
+      setError("Les deux mots de passe ne correspondent pas.");
       return;
     }
 
@@ -306,17 +223,19 @@ function AuthPage() {
     setLoading(true);
 
     try {
-      const { data, error: signUpError } =
-        await supabase.auth.signUp({
-          email: email.trim(),
-          password,
-          options: {
-            data: {
-              full_name: fullName.trim(),
-              phone: phone.trim(),
-            },
+      const {
+        data,
+        error: signUpError,
+      } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+            phone: phone.trim(),
           },
-        });
+        },
+      });
 
       if (signUpError) {
         setError(signUpError.message);
@@ -324,7 +243,8 @@ function AuthPage() {
       }
 
       /*
-       * Confirmation email obligatoire.
+       * Si Supabase exige une confirmation email,
+       * aucune session n'est encore disponible.
        */
       if (!data.session) {
         setSuccess(
@@ -339,17 +259,16 @@ function AuthPage() {
       }
 
       /*
-       * Si Supabase connecte directement l'utilisateur,
-       * on vérifie immédiatement son rôle.
+       * Session créée directement.
+       *
+       * Même logique que pour la connexion :
+       * le routeur authentifié décide de l'espace.
        */
       if (data.user) {
-        await redirectAfterLogin(data.user.id);
+        await redirectAfterLogin();
       }
     } catch (err) {
-      console.error(
-        "[Auth] Erreur inscription :",
-        err,
-      );
+      console.error("[Auth] Erreur inscription :", err);
 
       redirectingRef.current = false;
 
@@ -368,7 +287,6 @@ function AuthPage() {
    * CHANGEMENT LOGIN / INSCRIPTION
    * ============================================================
    */
-
   const switchMode = (nextMode: AuthMode) => {
     if (loading || redirectingRef.current) {
       return;
@@ -386,13 +304,10 @@ function AuthPage() {
    * INTERFACE
    * ============================================================
    */
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-8">
       <div className="w-full max-w-md">
         <div className="surface overflow-hidden rounded-3xl p-6 shadow-xl sm:p-8">
-
-          {/* Logo / titre */}
           <div className="mb-7 text-center">
             <h1 className="font-display text-3xl font-bold tracking-tight">
               LoyerAlert
@@ -405,7 +320,6 @@ function AuthPage() {
             </p>
           </div>
 
-          {/* Onglets */}
           <div className="mb-6 grid grid-cols-2 rounded-xl bg-muted p-1">
             <button
               type="button"
@@ -434,27 +348,20 @@ function AuthPage() {
             </button>
           </div>
 
-          {/* Message erreur */}
           {error ? (
             <div className="mb-4 rounded-xl border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
               {error}
             </div>
           ) : null}
 
-          {/* Message succès */}
           {success ? (
             <div className="mb-4 rounded-xl border border-green-500/30 bg-green-500/10 p-3 text-sm text-green-700">
               {success}
             </div>
           ) : null}
 
-          {/* Formulaire */}
           <form
-            onSubmit={
-              isLogin
-                ? handleLogin
-                : handleRegister
-            }
+            onSubmit={isLogin ? handleLogin : handleRegister}
             className="space-y-4"
           >
             {!isLogin ? (
@@ -472,9 +379,7 @@ function AuthPage() {
                     type="text"
                     autoComplete="name"
                     value={fullName}
-                    onChange={(event) =>
-                      setFullName(event.target.value)
-                    }
+                    onChange={(event) => setFullName(event.target.value)}
                     placeholder="Ex. Dan Kienou"
                     required
                     className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
@@ -494,9 +399,7 @@ function AuthPage() {
                     type="tel"
                     autoComplete="tel"
                     value={phone}
-                    onChange={(event) =>
-                      setPhone(event.target.value)
-                    }
+                    onChange={(event) => setPhone(event.target.value)}
                     placeholder="Ex. +226 XX XX XX XX"
                     required
                     className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
@@ -518,9 +421,7 @@ function AuthPage() {
                 type="email"
                 autoComplete="email"
                 value={email}
-                onChange={(event) =>
-                  setEmail(event.target.value)
-                }
+                onChange={(event) => setEmail(event.target.value)}
                 placeholder="vous@example.com"
                 required
                 className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
@@ -538,15 +439,9 @@ function AuthPage() {
               <input
                 id="password"
                 type="password"
-                autoComplete={
-                  isLogin
-                    ? "current-password"
-                    : "new-password"
-                }
+                autoComplete={isLogin ? "current-password" : "new-password"}
                 value={password}
-                onChange={(event) =>
-                  setPassword(event.target.value)
-                }
+                onChange={(event) => setPassword(event.target.value)}
                 placeholder="••••••••"
                 required
                 className="w-full rounded-xl border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:ring-2 focus:ring-primary"
@@ -592,16 +487,13 @@ function AuthPage() {
             </button>
           </form>
 
-          {/* Bas du formulaire */}
           <div className="mt-6 text-center text-sm text-muted-foreground">
             {isLogin ? (
               <>
                 Vous n'avez pas encore de compte ?{" "}
                 <button
                   type="button"
-                  onClick={() =>
-                    switchMode("register")
-                  }
+                  onClick={() => switchMode("register")}
                   disabled={loading}
                   className="font-semibold text-primary hover:underline"
                 >
@@ -613,9 +505,7 @@ function AuthPage() {
                 Vous avez déjà un compte ?{" "}
                 <button
                   type="button"
-                  onClick={() =>
-                    switchMode("login")
-                  }
+                  onClick={() => switchMode("login")}
                   disabled={loading}
                   className="font-semibold text-primary hover:underline"
                 >
@@ -624,7 +514,6 @@ function AuthPage() {
               </>
             )}
           </div>
-
         </div>
       </div>
     </div>
