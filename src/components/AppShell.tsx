@@ -38,29 +38,30 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useProfile } from "@/hooks/useProfile";
+import { useI18n } from "@/lib/i18n";
 
 const SIDE_NAV = [
-  { to: "/dashboard", label: "Accueil", icon: Home },
-  { to: "/logements", label: "Logements", icon: Building2 },
-  { to: "/locataires", label: "Locataires", icon: Users },
-  { to: "/paiements", label: "Paiements", icon: Receipt },
-  { to: "/abonnement", label: "Abonnement", icon: CreditCard },
-  { to: "/profil", label: "Profil", icon: User },
-  { to: "/parametres", label: "Paramètres", icon: Settings },
+  { to: "/dashboard", key: "nav.home", icon: Home },
+  { to: "/logements", key: "nav.properties", icon: Building2 },
+  { to: "/locataires", key: "nav.tenants", icon: Users },
+  { to: "/paiements", key: "nav.payments", icon: Receipt },
+  { to: "/abonnement", key: "nav.subscription", icon: CreditCard },
+  { to: "/profil", key: "nav.profile", icon: User },
+  { to: "/parametres", key: "app.settings", icon: Settings },
 ] as const;
 
 const TAB_NAV = [
-  { to: "/dashboard", label: "Accueil", icon: Home },
-  { to: "/logements", label: "Logements", icon: Building2 },
-  { to: "/locataires", label: "Locataires", icon: Users },
-  { to: "/paiements", label: "Paiements", icon: Receipt },
+  { to: "/dashboard", key: "nav.home", icon: Home },
+  { to: "/logements", key: "nav.properties", icon: Building2 },
+  { to: "/locataires", key: "nav.tenants", icon: Users },
+  { to: "/paiements", key: "nav.payments", icon: Receipt },
 ] as const;
 
 const MORE_NAV = [
-  { to: "/abonnement", label: "Mes demandes", icon: Receipt },
-  { to: "/abonnement", label: "Abonnement", icon: CreditCard },
-  { to: "/profil", label: "Profil", icon: User },
-  { to: "/parametres", label: "Paramètres", icon: Settings },
+  { to: "/abonnement", key: "app.moreRequests", icon: Receipt },
+  { to: "/abonnement", key: "nav.subscription", icon: CreditCard },
+  { to: "/profil", key: "nav.profile", icon: User },
+  { to: "/parametres", key: "app.settings", icon: Settings },
 ] as const;
 
 function useSignOut() {
@@ -80,6 +81,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { data: notificationRows } = useNotifications();
   useRealtimeSync(["notifications"], [["notifications"]]);
   const { data: profile } = useProfile();
+  const { t, lang } = useI18n();
 
   const path = useRouterState({
     select: (s) => s.location.pathname,
@@ -90,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const today = useMemo(
     () =>
-      new Date().toLocaleDateString("fr-FR", {
+      new Date().toLocaleDateString(lang === "en" ? "en-GB" : "fr-FR", {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -156,7 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-sm font-semibold">
-                    {profile?.full_name ?? "Mon compte"}
+                    {profile?.full_name ?? t("app.myAccount")}
                   </span>
 
                   <span className="block truncate text-xs text-muted-foreground">
@@ -207,7 +209,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="flex items-center gap-3 px-4 py-3 md:px-6">
             <div className="min-w-0 flex-1">
               <p className="truncate font-display text-base font-bold">
-                Bonjour{firstName ? ` ${firstName}` : ""} 👋
+                {t("app.hello")}{firstName ? ` ${firstName}` : ""} 👋
               </p>
 
               <p className="truncate text-xs text-muted-foreground">
@@ -218,16 +220,16 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="relative hidden lg:block">
               <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Rechercher…"
+                placeholder={t("app.search")}
                 className="w-64 pl-9"
-                aria-label="Rechercher"
+                aria-label={t("app.search")}
               />
             </div>
 
             <LanguageSwitcher compact />
 
             <Link to="/notifications" className="relative">
-              <Button variant="ghost" size="icon" aria-label="Notifications">
+              <Button variant="ghost" size="icon" aria-label={t("app.notifications")}>
                 <Bell className="size-5" />
               </Button>
 
@@ -240,7 +242,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label="Assistance"
+                aria-label={t("nav.support")}
               >
                 <LifeBuoy className="size-5" />
               </Button>
@@ -249,7 +251,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Se déconnecter"
+              aria-label={t("nav.signout")}
               onClick={() => void signOut()}
             >
               <LogOut className="size-5" />
@@ -302,7 +304,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <SheetContent side="bottom" className="rounded-t-2xl">
               <SheetHeader>
-                <SheetTitle>Plus</SheetTitle>
+                <SheetTitle>{t("app.more")}</SheetTitle>
               </SheetHeader>
 
               <div className="mt-2 space-y-1 pb-6">
@@ -311,7 +313,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
                   return (
                     <Link
-                      key={item.label}
+                      key={item.key}
                       to={item.to}
                       onClick={() => setMoreOpen(false)}
                       className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-150 hover:bg-muted"
