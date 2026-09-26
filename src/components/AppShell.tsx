@@ -17,6 +17,8 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAccount } from "@/hooks/useAccount";
+import { useNotifications } from "@/hooks/useNotifications";
+import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +77,8 @@ function useSignOut() {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const { data: account } = useAccount();
+  const { data: notificationRows } = useNotifications();
+  useRealtimeSync(["notifications"], [["notifications"]]);
   const { data: profile } = useProfile();
 
   const path = useRouterState({
@@ -105,7 +109,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       .slice(0, 2)
       .toUpperCase() || "?";
 
-  const notifications = account?.pending_request ? 1 : 0;
+  const notifications = notificationRows?.filter((n) => !n.read).length ?? 0;
 
   return (
     <div className="min-h-screen bg-muted/40">
@@ -222,7 +226,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
             <LanguageSwitcher compact />
 
-            <Link to="/abonnement" className="relative">
+            <Link to="/notifications" className="relative">
               <Button variant="ghost" size="icon" aria-label="Notifications">
                 <Bell className="size-5" />
               </Button>
