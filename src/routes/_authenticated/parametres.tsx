@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/parametres")({
       { title: "Paramètres — LoyerAlert" },
       {
         name: "description",
-        content: "{t("settings.language")}, modèles de relance WhatsApp et préférences de confidentialité.",
+        content: "Langue de l’application, modèles de relance WhatsApp et préférences de confidentialité.",
       },
       { property: "og:title", content: "Paramètres — LoyerAlert" },
       { property: "og:description", content: "Réglez la langue, vos relances et vos préférences LoyerAlert." },
