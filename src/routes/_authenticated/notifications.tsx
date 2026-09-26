@@ -42,8 +42,6 @@ function NotificationsPage() {
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
 
-  useRealtimeSync(["notifications"], [["notifications"]]);
-
   const rows = notifications.data ?? [];
   const unreadCount = rows.filter((n) => !n.read).length;
 
