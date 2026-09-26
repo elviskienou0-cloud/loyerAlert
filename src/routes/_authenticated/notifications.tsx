@@ -72,7 +72,11 @@ function NotificationsPage() {
         ) : null}
       </div>
 
-      {notifications.isLoading ? (
+      {notifications.isError ? (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-5 text-sm text-destructive">
+          {t("page.notificationsError")}
+        </div>
+      ) : notifications.isLoading ? (
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="h-20 w-full rounded-xl" />
@@ -108,7 +112,7 @@ function NotificationItem({
   onMarkRead: () => void;
 }) {
   const { t } = useI18n();
-  const Icon = TYPE_ICON[notification.type];
+  const Icon = TYPE_ICON[notification.type] ?? Bell;
 
   return (
     <li
@@ -128,7 +132,7 @@ function NotificationItem({
 
       {!notification.read ? (
         <Button variant="ghost" size="sm" onClick={onMarkRead}>
-          Marquer lu
+          {t("page.markRead")}
         </Button>
       ) : null}
     </li>
