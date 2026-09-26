@@ -19,6 +19,8 @@ const STORAGE_KEY = "loyeralert.lang";
 type Dict = Record<string, string>;
 
 const fr: Dict = {
+  "page.notificationsError": "Impossible de charger les notifications. Vérifiez votre connexion puis réessayez.",
+
   "settings.title": "Paramètres", "settings.subtitle": "Personnalisez votre expérience LoyerAlert.", "settings.language": "Langue de l'application", "settings.languages": "Français, anglais.", "settings.whatsapp": "Messages de relance WhatsApp", "settings.before": "Avant échéance", "settings.due": "Jour de l'échéance", "settings.after": "Après échéance", "settings.saved": "Messages enregistrés ✓", "settings.save": "Enregistrer les messages", "settings.privacy": "Confidentialité", "settings.private": "Vos données ne sont visibles que par vous.", "settings.privacyPolicy": "Politique de confidentialité", "settings.cookies": "Politique de cookies",
 
   "page.notifications": "Notifications",
@@ -131,6 +133,8 @@ const fr: Dict = {
 };
 
 const en: Dict = {
+  "page.notificationsError": "Unable to load notifications. Check your connection and try again.",
+
   "settings.title": "Settings", "settings.subtitle": "Customize your LoyerAlert experience.", "settings.language": "Application language", "settings.languages": "French, English.", "settings.whatsapp": "WhatsApp reminder messages", "settings.before": "Before due date", "settings.due": "Due date", "settings.after": "After due date", "settings.saved": "Messages saved ✓", "settings.save": "Save messages", "settings.privacy": "Privacy", "settings.private": "Your data is only visible to you.", "settings.privacyPolicy": "Privacy policy", "settings.cookies": "Cookie policy",
 
   "page.notifications": "Notifications",
