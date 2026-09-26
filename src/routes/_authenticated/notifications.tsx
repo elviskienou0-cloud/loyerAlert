@@ -12,6 +12,7 @@ import {
   type NotificationType,
 } from "@/hooks/useNotifications";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
@@ -36,6 +37,7 @@ const TYPE_STYLE: Record<NotificationType, string> = {
 };
 
 function NotificationsPage() {
+  const { t } = useI18n();
   const notifications = useNotifications();
   const markRead = useMarkNotificationRead();
   const markAllRead = useMarkAllNotificationsRead();
@@ -49,11 +51,11 @@ function NotificationsPage() {
     <div className="mx-auto max-w-2xl space-y-6 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-xl font-bold">Notifications</h1>
+          <h1 className="font-display text-xl font-bold">{t("page.notifications")}</h1>
           <p className="text-sm text-muted-foreground">
             {unreadCount > 0
-              ? `${unreadCount} notification${unreadCount > 1 ? "s" : ""} non lue${unreadCount > 1 ? "s" : ""}`
-              : "Tout est à jour"}
+              ? t("page.unread", { count: unreadCount })
+              : t("page.allCaughtUp")}
           </p>
         </div>
 
@@ -65,7 +67,7 @@ function NotificationsPage() {
             disabled={markAllRead.isPending}
           >
             <CheckCheck className="mr-2 size-4" />
-            Tout marquer comme lu
+            {t("page.markAllRead")}
           </Button>
         ) : null}
       </div>
@@ -79,9 +81,9 @@ function NotificationsPage() {
       ) : rows.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-16 text-center text-sm text-muted-foreground">
           <Bell className="mx-auto mb-3 size-8 opacity-40" />
-          Aucune notification pour le moment.
+          {t("page.noNotifications")}
           <br />
-          Les rappels d'échéance apparaîtront ici automatiquement.
+          {t("page.remindersHere")}
         </div>
       ) : (
         <ul className="space-y-2">
@@ -105,6 +107,7 @@ function NotificationItem({
   notification: NotificationRow;
   onMarkRead: () => void;
 }) {
+  const { t } = useI18n();
   const Icon = TYPE_ICON[notification.type];
 
   return (
