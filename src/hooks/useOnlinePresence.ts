@@ -10,7 +10,7 @@ type PresenceMeta = {
   page?: string;
 };
 
-export function useOnlinePresence(user: User | null | undefined, page?: string) {
+export function useOnlinePresence(user: User | null | undefined, page?: string, track = true) {
   const [onlineIds, setOnlineIds] = useState<string[]>([]);
 
   useEffect(() => {
@@ -35,21 +35,23 @@ export function useOnlinePresence(user: User | null | undefined, page?: string) 
     let active = true;
     void channel.subscribe(async (status) => {
       if (status !== "SUBSCRIBED" || !active) return;
-      await channel.track({
-        user_id: user.id,
-        online_at: new Date().toISOString(),
-        page: page ?? window.location.pathname,
-      });
+      if (track) {
+        await channel.track({
+          user_id: user.id,
+          online_at: new Date().toISOString(),
+          page: page ?? window.location.pathname,
+        });
+      }
       sync();
     });
 
     return () => {
       active = false;
-      void channel.untrack();
+      if (track) void channel.untrack();
       void supabase.removeChannel(channel);
       setOnlineIds([]);
     };
-  }, [user?.id, page]);
+  }, [user?.id, page, track]);
 
   return {
     onlineIds,
