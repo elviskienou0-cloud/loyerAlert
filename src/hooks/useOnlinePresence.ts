@@ -19,31 +19,60 @@ export function useOnlinePresence(user: User | null | undefined, page?: string, 
       return;
     }
 
+    let active = true;
     const channel = supabase.channel(CHANNEL, {
       config: { private: true, presence: { key: user.id } },
     });
 
     const sync = () => {
+      if (!active) return;
       const state = channel.presenceState<PresenceMeta>();
-      setOnlineIds(
-        Object.keys(state).filter((id) => id),
-      );
+      setOnlineIds(Object.keys(state).filter(Boolean));
     };
 
     channel.on("presence", { event: "sync" }, sync);
+    channel.on("presence", { event: "join" }, sync);
+    channel.on("presence", { event: "leave" }, sync);
 
-    let active = true;
-    void channel.subscribe(async (status) => {
-      if (status !== "SUBSCRIBED" || !active) return;
-      if (track) {
-        await channel.track({
-          user_id: user.id,
-          online_at: new Date().toISOString(),
-          page: page ?? window.location.pathname,
-        });
+    const connect = async () => {
+      // Realtime Authorization uses the authenticated user's JWT when a
+      // private channel is joined. Refresh the session token explicitly so
+      // the WebSocket always has the same auth context as the REST client.
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("[LoyerAlert Presence] getSession failed:", error);
       }
-      sync();
-    });
+
+      const accessToken = data.session?.access_token;
+      if (accessToken) {
+        supabase.realtime.setAuth(accessToken);
+      }
+
+      void channel.subscribe(async (status, err) => {
+        if (!active) return;
+
+        if (status !== "SUBSCRIBED") {
+          console.error("[LoyerAlert Presence] channel status:", status, err);
+          return;
+        }
+
+        if (track) {
+          const trackStatus = await channel.track({
+            user_id: user.id,
+            online_at: new Date().toISOString(),
+            page: page ?? window.location.pathname,
+          });
+
+          if (trackStatus !== "ok") {
+            console.error("[LoyerAlert Presence] track failed:", trackStatus);
+          }
+        }
+
+        sync();
+      });
+    };
+
+    void connect();
 
     return () => {
       active = false;
