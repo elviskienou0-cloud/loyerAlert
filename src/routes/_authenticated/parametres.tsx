@@ -65,9 +65,9 @@ function Settings() {
         </div>
         {(
           [
-            ["before", "{t("settings.before")}"],
-            ["onday", "{t("settings.due")}"],
-            ["after", "{t("settings.after")}"],
+            ["before", t("settings.before")],
+            ["onday", t("settings.due")],
+            ["after", t("settings.after")],
           ] as [ReminderKind, string][]
         ).map(([key, label]) => (
           <div key={key} className="space-y-1.5">
@@ -81,7 +81,7 @@ function Settings() {
         <Button
           onClick={() => {
             saveTemplates(templates);
-            toast.success("{t("settings.saved")}");
+            toast.success(t("settings.saved"));
           }}
         >
           {t("settings.save")}
