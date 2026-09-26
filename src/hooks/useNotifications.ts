@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-export type NotificationType = "due_soon" | "due_today" | "overdue";
+export type NotificationType = "due_soon" | "due_today" | "overdue" | "announcement";
 
 export type NotificationRow = {
   id: string;
