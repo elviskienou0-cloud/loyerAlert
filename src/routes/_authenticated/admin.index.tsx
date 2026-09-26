@@ -1,21 +1,16 @@
 import { createFileRoute, useRouterState } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   Activity,
   AlertTriangle,
   Bell,
   Building2,
-  CheckCircle2,
-  Eye,
   Flag,
   Home,
-  Megaphone,
   MessageSquare,
   Settings,
-  Users,
   Wifi,
-  XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -343,7 +338,7 @@ function UnavailableSection({ title, message, icon: Icon }: { title: string; mes
   return <SectionPage title={title} subtitle="Module préparé, mais aucune source de données correspondante n'existe encore dans la base actuelle." icon={Icon}><Panel title={title}><div className="flex items-start gap-3 p-5 text-sm text-slate-600"><AlertTriangle className="mt-0.5 size-5 shrink-0 text-amber-500" />{message}</div></Panel></SectionPage>;
 }
 
-function SectionPage({ title, subtitle, icon: Icon, children }: { title: string; subtitle: string; icon: typeof Home; children: React.ReactNode }) {
+function SectionPage({ title, subtitle, icon: Icon, children }: { title: string; subtitle: string; icon: typeof Home; children: ReactNode }) {
   return <div className="space-y-5"><header><div className="flex items-center gap-2 text-emerald-600"><Icon className="size-5" /><span className="text-sm font-semibold">Administration</span></div><h1 className="mt-1 font-display text-3xl font-bold text-slate-900">{title}</h1><p className="mt-1 text-sm text-slate-500">{subtitle}</p></header>{children}</div>;
 }
 
