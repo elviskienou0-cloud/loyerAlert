@@ -19,6 +19,20 @@ const STORAGE_KEY = "loyeralert.lang";
 type Dict = Record<string, string>;
 
 const fr: Dict = {
+  "nav.home": "Accueil",
+  "nav.properties": "Logements",
+  "nav.tenants": "Locataires",
+  "nav.payments": "Paiements",
+  "nav.subscription": "Abonnement",
+  "nav.profile": "Profil",
+  "nav.support": "Assistance",
+  "nav.signout": "Se déconnecter",
+  "app.hello": "Bonjour",
+  "app.search": "Rechercher…",
+  "app.more": "Plus",
+  "app.moreRequests": "Mes demandes",
+  "app.myAccount": "Mon compte",
+
   "brand.tagline": "Afrique de l'Ouest · FCFA",
   "nav.home": "Accueil",
   "nav.properties": "Logements",
@@ -115,6 +129,20 @@ const fr: Dict = {
 };
 
 const en: Dict = {
+  "nav.home": "Home",
+  "nav.properties": "Properties",
+  "nav.tenants": "Tenants",
+  "nav.payments": "Payments",
+  "nav.subscription": "Subscription",
+  "nav.profile": "Profile",
+  "nav.support": "Support",
+  "nav.signout": "Sign out",
+  "app.hello": "Hello",
+  "app.search": "Search…",
+  "app.more": "More",
+  "app.moreRequests": "My requests",
+  "app.myAccount": "My account",
+
   "brand.tagline": "West Africa · FCFA",
   "nav.home": "Home",
   "nav.properties": "Properties",
@@ -217,8 +245,6 @@ const en: Dict = {
   "app.signout": "Sign out",
   "app.more": "More",
   "app.notifications": "Notifications",
-  "nav.home": "Home", "nav.properties": "Properties", "nav.tenants": "Tenants", "nav.payments": "Payments", "nav.subscription": "Subscription", "nav.profile": "Profile", "nav.support": "Support", "nav.signout": "Sign out", "app.hello": "Hello", "app.search": "Search…", "app.more": "More", "app.moreRequests": "My requests", "app.myAccount": "My account",
-  "nav.home": "Accueil", "nav.properties": "Logements", "nav.tenants": "Locataires", "nav.payments": "Paiements", "nav.subscription": "Abonnement", "nav.profile": "Profil", "nav.support": "Assistance", "nav.signout": "Se déconnecter", "app.hello": "Bonjour", "app.search": "Rechercher…", "app.more": "Plus", "app.moreRequests": "Mes demandes", "app.myAccount": "Mon compte",
 };
 
 
