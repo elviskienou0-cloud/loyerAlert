@@ -269,7 +269,12 @@ function NotificationsSection() {
     mutationFn: async () => {
       if (!title.trim() || !body.trim()) throw new Error("Le titre et le message sont obligatoires.");
       const { data: me } = await supabase.auth.getUser();
-      const { error } = await supabase.from("admin_announcements").insert({ title: title.trim(), body: body.trim(), created_by: me.user?.id ?? null, active: true, audience: "all", kind: "info" });
+      const { error } = await supabase.rpc("admin_send_announcement", {
+        p_title: title.trim(),
+        p_body: body.trim(),
+        p_audience: "all",
+        p_kind: "info",
+      });
       if (error) throw error;
     },
     onSuccess: () => { setTitle(""); setBody(""); toast.success("Notification publiée."); void qc.invalidateQueries({ queryKey: ["admin-announcements"] }); },
