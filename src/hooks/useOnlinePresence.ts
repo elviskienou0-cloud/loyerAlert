@@ -20,7 +20,7 @@ export function useOnlinePresence(user: User | null | undefined, page?: string) 
     }
 
     const channel = supabase.channel(CHANNEL, {
-      config: { presence: { key: user.id } },
+      config: { private: true, presence: { key: user.id } },
     });
 
     const sync = () => {
