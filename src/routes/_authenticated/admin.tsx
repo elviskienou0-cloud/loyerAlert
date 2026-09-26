@@ -122,9 +122,9 @@ function AdminLayout() {
               const count = l.to === "/admin/paiements" ? (pending.data ?? 0) : 0;
 
               return (
-                <Link
+                <a
                   key={l.to}
-                  to={l.to as never}
+                  href={l.to}
                   className={cn(
                     "flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700",
                     active && "bg-emerald-600 text-white shadow-sm hover:bg-emerald-600 hover:text-white",
@@ -144,7 +144,7 @@ function AdminLayout() {
                       {count}
                     </span>
                   ) : null}
-                </Link>
+                </a>
               );
             })}
           </nav>
