@@ -521,24 +521,8 @@ export type Database = {
       }
     }
     Functions: {
-      admin_alerts: { Args: { p_limit?: number }; Returns: Json }
-      admin_analytics: { Args: { p_days?: number }; Returns: Json }
       admin_charts: { Args: { p_months?: number }; Returns: Json }
-      admin_dashboard: { Args: never; Returns: Json }
-      admin_delete_property: { Args: { p_id: string }; Returns: undefined }
-      admin_delete_user: { Args: { p_user_id: string }; Returns: undefined }
       admin_level: { Args: { _user_id: string }; Returns: string }
-      admin_list_admins: {
-        Args: never
-        Returns: {
-          created_at: string
-          email: string
-          full_name: string
-          level: string
-          suspended: boolean
-          user_id: string
-        }[]
-      }
       admin_logs: {
         Args: { p_limit?: number }
         Returns: {
@@ -551,40 +535,31 @@ export type Database = {
           user_id: string
         }[]
       }
-      admin_properties: {
-        Args: { p_search?: string }
+      admin_payment_requests: {
+        Args: never
         Returns: {
-          address: string
+          amount: number
           created_at: string
-          due_day: number
           id: string
-          name: string
-          next_due: string
-          occupied: boolean
-          owner_email: string
-          owner_id: string
-          owner_name: string
-          rent_amount: number
-          tenant_name: string
-          tenant_phone: string
+          paid_at: string | null
+          payment_channel: string
+          payment_method: string
+          plan: Database["public"]["Enums"]["sub_plan"]
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          screenshot_path: string
+          sender_phone: string
+          status: Database["public"]["Enums"]["pay_request_status"]
+          transaction_reference: string | null
+          user_id: string
         }[]
-      }
-      admin_send_announcement: {
-        Args: {
-          p_audience?: string
-          p_body: string
-          p_kind?: string
-          p_title: string
+        SetofOptions: {
+          from: "*"
+          to: "payment_requests"
+          isOneToOne: false
+          isSetofReturn: true
         }
-        Returns: string
-      }
-      admin_set_level: {
-        Args: { p_email: string; p_level: string }
-        Returns: undefined
-      }
-      admin_set_subscription: {
-        Args: { p_months?: number; p_plan: string; p_user_id: string }
-        Returns: undefined
       }
       admin_set_suspended: {
         Args: { p_suspended: boolean; p_user_id: string }
@@ -605,61 +580,27 @@ export type Database = {
           user_id: string
         }[]
       }
-      admin_subscriptions_full: {
-        Args: never
-        Returns: {
-          days_left: number
-          email: string
-          ends_at: string
-          full_name: string
-          plan: string
-          price: number
-          properties: number
-          started_at: string
-          status: string
-          trial_ends_at: string
-          user_id: string
-        }[]
-      }
-      admin_toggle_announcement: {
-        Args: { p_active: boolean; p_id: string }
-        Returns: undefined
-      }
-      admin_update_property: {
-        Args: {
-          p_address: string
-          p_due_day: number
-          p_id: string
-          p_name: string
-          p_rent: number
-        }
-        Returns: undefined
-      }
-      admin_update_settings: { Args: { p_patch: Json }; Returns: undefined }
       admin_users: {
         Args: { p_search?: string }
         Returns: {
           created_at: string
           email: string
-          ends_at: string
           full_name: string
           id: string
-          phone: string
           plan: Database["public"]["Enums"]["sub_plan"]
           properties: number
           role: Database["public"]["Enums"]["app_role"]
-          started_at: string
           status: Database["public"]["Enums"]["sub_status"]
           suspended: boolean
-          trial_ends_at: string
         }[]
       }
       effective_status: {
-        Args: { _user_id: string }
+        Args: { p_user_id: string }
         Returns: Database["public"]["Enums"]["sub_status"]
       }
       generate_rent_records: { Args: { p_period: string }; Returns: number }
-      has_access: { Args: { _user_id: string }; Returns: boolean }
+      has_access: { Args: { p_user_id: string }; Returns: boolean }
+      has_admin_access: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -668,10 +609,11 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: never; Returns: boolean }
+      is_current_admin: { Args: never; Returns: boolean }
       is_staff: { Args: never; Returns: boolean }
       is_super_admin: { Args: never; Returns: boolean }
       my_account: { Args: never; Returns: Json }
-      plan_limit: { Args: { _user_id: string }; Returns: number }
+      plan_limit: { Args: { p_user_id: string }; Returns: number }
       review_payment_request: {
         Args: { p_approve: boolean; p_reason?: string; p_request_id: string }
         Returns: undefined
