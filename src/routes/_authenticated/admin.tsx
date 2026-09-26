@@ -1,5 +1,18 @@
-import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { BarChart3, CreditCard, FileClock, LifeBuoy, Receipt, Users } from "lucide-react";
+import { createFileRoute, Outlet, redirect, useRouterState } from "@tanstack/react-router";
+import {
+  BarChart3,
+  Bell,
+  Building2,
+  ClipboardList,
+  CreditCard,
+  FileClock,
+  Flag,
+  Home,
+  LifeBuoy,
+  MessageSquare,
+  Settings,
+  Users,
+} from "lucide-react";
 import { useAdminNotifications, usePendingRequestsCount } from "@/hooks/useAdminNotifications";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,9 +46,16 @@ export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({
     meta: [
       { title: "Administration — LoyerAlert" },
-      { name: "description", content: "Espace administrateur privé : utilisateurs, abonnements, paiements et journal." },
+      {
+        name: "description",
+        content:
+          "Espace administrateur privé : utilisateurs, annonces, signalements, paiements et paramètres.",
+      },
       { property: "og:title", content: "Administration — LoyerAlert" },
-      { property: "og:description", content: "Espace administrateur privé LoyerAlert." },
+      {
+        property: "og:description",
+        content: "Espace administrateur privé LoyerAlert.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "robots", content: "noindex, nofollow" },
@@ -46,62 +66,109 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 const LINKS = [
   { to: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
-  { to: "/admin/paiements", label: "Demandes de paiement", icon: Receipt, exact: false },
-  { to: "/admin/abonnements", label: "Abonnements", icon: CreditCard, exact: false },
   { to: "/admin/utilisateurs", label: "Utilisateurs", icon: Users, exact: false },
-  { to: "/admin/journal", label: "Journal admin", icon: FileClock, exact: false },
+  { to: "/admin?section=annonces", label: "Annonces", icon: Home, exact: false },
+  { to: "/admin?section=signalements", label: "Signalements", icon: Flag, exact: false },
+  { to: "/admin?section=proprietaires", label: "Propriétaires", icon: Building2, exact: false },
+  { to: "/admin?section=demandes", label: "Demandes", icon: ClipboardList, exact: false },
+  { to: "/admin?section=avis", label: "Avis", icon: MessageSquare, exact: false },
+  { to: "/admin/paiements", label: "Paiements / Abonnements", icon: CreditCard, exact: false },
+  { to: "/admin?section=notifications", label: "Notifications", icon: Bell, exact: false },
+  { to: "/admin?section=parametres", label: "Paramètres", icon: Settings, exact: false },
 ] as const;
 
 function AdminLayout() {
-  const path = useRouterState({ select: (s) => s.location.pathname });
+  const location = useRouterState({
+    select: (s) => ({ pathname: s.location.pathname, searchStr: s.location.searchStr }),
+  });
   const isAdmin = true;
 
   useAdminNotifications(isAdmin);
   const pending = usePendingRequestsCount(isAdmin);
 
+  const currentSection = new URLSearchParams(location.searchStr).get("section");
+
   return (
-    <div className="flex flex-col gap-4 md:flex-row">
-      <aside className="rounded-2xl bg-neutral-900 p-3 text-neutral-200 shadow-lg md:w-60 md:shrink-0">
-        <p className="px-3 pb-3 pt-2 font-display text-xs font-bold uppercase tracking-[0.2em] text-neutral-400">
-          Administration
-        </p>
-        <nav className="flex gap-1 overflow-x-auto md:flex-col md:overflow-visible">
-          {LINKS.map((l) => {
-            const Icon = l.icon;
-            const active = l.exact ? path === l.to || path === `${l.to}/` : path.startsWith(l.to);
-            const count = l.to === "/admin/paiements" ? (pending.data ?? 0) : 0;
-            return (
-              <Link
-                key={l.to}
-                to={l.to}
-                className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-300 transition-all duration-200 hover:bg-white/10 hover:text-white",
-                  active && "bg-white/15 text-white shadow-inner",
-                )}
-              >
-                <Icon className="size-4" />
-                <span className="whitespace-nowrap">{l.label}</span>
-                {count > 0 ? (
-                  <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-bold text-neutral-950">
-                    {count}
-                  </span>
-                ) : null}
-              </Link>
-            );
-          })}
-        </nav>
-        <a
-          href="mailto:kienoucoucou5@gmail.com?subject=Assistance%20LoyerAlert%20(admin)"
-          className="mt-2 flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-neutral-300 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <LifeBuoy className="size-4" />
-          <span className="whitespace-nowrap">Assistance</span>
-        </a>
-      </aside>
-      <section className="min-w-0 flex-1 animate-in fade-in duration-300">
-        <Outlet />
-      </section>
+    <div className="min-h-[calc(100vh-2rem)] overflow-hidden rounded-3xl border border-emerald-100 bg-white shadow-sm">
+      <div className="flex min-h-[calc(100vh-2rem)] flex-col lg:flex-row">
+        <aside className="w-full border-b border-emerald-100 bg-white p-4 lg:w-64 lg:shrink-0 lg:border-b-0 lg:border-r">
+          <div className="mb-5 flex items-center gap-3 px-2">
+            <div className="flex size-10 items-center justify-center rounded-xl bg-emerald-600 text-lg font-black text-white">
+              L
+            </div>
+            <div>
+              <p className="font-display text-lg font-bold text-slate-900">LoyerAlert</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-600">
+                Administration
+              </p>
+            </div>
+          </div>
+
+          <nav className="flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
+            {LINKS.map((l) => {
+              const Icon = l.icon;
+              const linkUrl = new URL(l.to, window.location.origin);
+              const linkSection = linkUrl.searchParams.get("section");
+              const active =
+                l.exact
+                  ? location.pathname === "/admin" && !currentSection
+                  : l.to === "/admin/utilisateurs"
+                    ? location.pathname.startsWith("/admin/utilisateurs")
+                    : l.to === "/admin/paiements"
+                      ? location.pathname.startsWith("/admin/paiements") ||
+                        location.pathname.startsWith("/admin/abonnements")
+                      : location.pathname === "/admin" && currentSection === linkSection;
+
+              const count = l.to === "/admin/paiements" ? (pending.data ?? 0) : 0;
+
+              return (
+                <a
+                  key={l.to}
+                  href={l.to}
+                  className={cn(
+                    "flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700",
+                    active && "bg-emerald-600 text-white shadow-sm hover:bg-emerald-600 hover:text-white",
+                  )}
+                >
+                  <Icon className="size-4" />
+                  <span className="whitespace-nowrap">{l.label}</span>
+                  {count > 0 ? (
+                    <span
+                      className={cn(
+                        "ml-auto inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 text-[10px] font-bold",
+                        active
+                          ? "bg-white text-emerald-700"
+                          : "bg-amber-100 text-amber-800",
+                      )}
+                    >
+                      {count}
+                    </span>
+                  ) : null}
+                </a>
+              );
+            })}
+          </nav>
+
+          <a
+            href="mailto:kienoucoucou5@gmail.com?subject=Assistance%20LoyerAlert%20(admin)"
+            className="mt-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
+          >
+            <LifeBuoy className="size-4" />
+            <span>Assistance</span>
+          </a>
+
+          <div className="mt-6 hidden rounded-2xl bg-emerald-50 p-3 text-xs text-emerald-800 lg:block">
+            <p className="font-semibold">Espace sécurisé</p>
+            <p className="mt-1 text-emerald-700/80">
+              Les outils d'administration sont réservés aux comptes autorisés.
+            </p>
+          </div>
+        </aside>
+
+        <section className="min-w-0 flex-1 bg-slate-50/70 p-4 md:p-6 lg:p-7">
+          <Outlet />
+        </section>
+      </div>
     </div>
   );
 }
-

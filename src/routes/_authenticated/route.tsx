@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet, redirect, useLocation, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
+import { useOnlinePresence } from "@/hooks/useOnlinePresence";
 
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/AppShell";
@@ -159,6 +160,8 @@ export const Route = createFileRoute("/_authenticated")({
 
 function AuthenticatedLayout() {
   const location = useLocation();
+  const loaderData = Route.useLoaderData();
+  useOnlinePresence(loaderData?.user, location.pathname);
 
   const isAdminArea = location.pathname === "/admin" || location.pathname.startsWith("/admin/");
 
@@ -178,7 +181,6 @@ function AuthenticatedLayout() {
 
 function SubscriptionExpiryWatcher() {
   const router = useRouter();
-  const loaderData = Route.useLoaderData();
   const subscription = loaderData?.subscription;
 
   useEffect(() => {

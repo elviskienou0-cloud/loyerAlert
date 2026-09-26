@@ -46,9 +46,9 @@ export function statusLabel(status: string): string {
   return map[status] ?? status;
 }
 
-export function Panel({ title, children }: { title: string; children: ReactNode }) {
+export function Panel({ title, children, className }: { title: string; children: ReactNode; className?: string }) {
   return (
-    <div className="surface overflow-hidden">
+    <div className={cn("surface overflow-hidden", className)}>
       <div className="border-b border-border px-4 py-3">
         <h2 className="font-display text-sm font-bold uppercase tracking-wide">{title}</h2>
       </div>
