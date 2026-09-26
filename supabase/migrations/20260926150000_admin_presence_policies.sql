@@ -17,5 +17,5 @@ to authenticated
 using (
   realtime.topic() = 'loyeralert-online-users'
   and realtime.messages.extension = 'presence'
-  and public.is_current_admin()
+  and public.is_admin()
 );
