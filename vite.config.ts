@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 import viteReact from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
+import { nitro } from "nitro/vite";
 
 export default defineConfig({
   server: {
@@ -59,5 +60,10 @@ export default defineConfig({
     }),
 
     viteReact(),
+
+    // Nécessaire pour déployer sur Vercel (ou tout hébergeur basé sur Nitro).
+    // Sans preset explicite : Vercel détecte automatiquement son environnement
+    // au moment du build et applique le bon adaptateur.
+    nitro(),
   ],
 });
