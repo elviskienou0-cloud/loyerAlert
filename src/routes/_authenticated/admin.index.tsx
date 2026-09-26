@@ -43,7 +43,7 @@ function AdminDashboard() {
     useRouterState({ select: (s) => s.location.searchStr }),
   ).get("section");
   const { data: user } = useAdminUser();
-  const presence = useOnlinePresence(user);
+  const presence = useOnlinePresence(user, undefined, false);
   
   if (section === "annonces") return <AnnoncesSection />;
   if (section === "signalements") return <UnavailableSection title="Signalements" icon={Flag} message="Le schéma Supabase actuel ne contient pas encore de table de signalements. Aucune donnée fictive n'est affichée." />;
