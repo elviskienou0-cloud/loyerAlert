@@ -19,6 +19,14 @@ const STORAGE_KEY = "loyeralert.lang";
 type Dict = Record<string, string>;
 
 const fr: Dict = {
+  "page.notifications": "Notifications",
+  "page.unread": "{count} notification(s) non lue(s)",
+  "page.allCaughtUp": "Tout est à jour",
+  "page.markAllRead": "Tout marquer comme lu",
+  "page.noNotifications": "Aucune notification pour le moment.",
+  "page.remindersHere": "Les rappels d’échéance apparaîtront ici automatiquement.",
+  "page.markRead": "Marquer lu",
+
     "app.hello": "Bonjour",
   "app.search": "Rechercher…",
   "app.more": "Plus",
@@ -121,6 +129,14 @@ const fr: Dict = {
 };
 
 const en: Dict = {
+  "page.notifications": "Notifications",
+  "page.unread": "{count} unread notification(s)",
+  "page.allCaughtUp": "All caught up",
+  "page.markAllRead": "Mark all as read",
+  "page.noNotifications": "No notifications yet.",
+  "page.remindersHere": "Due-date reminders will appear here automatically.",
+  "page.markRead": "Mark as read",
+
     "app.hello": "Hello",
   "app.search": "Search…",
   "app.more": "More",
