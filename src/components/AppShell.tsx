@@ -98,7 +98,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         month: "long",
         year: "numeric",
       }),
-    [],
+    [lang],
   );
 
   const firstName = (profile?.full_name ?? "").split(" ")[0] || "";
@@ -142,7 +142,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 )}
               >
                 <Icon className="size-[18px]" />
-                {item.label}
+                {t(item.key)}
               </Link>
             );
           })}
@@ -174,21 +174,21 @@ export function AppShell({ children }: { children: ReactNode }) {
               <DropdownMenuItem asChild>
                 <Link to="/profil">
                   <User className="mr-2 size-4" />
-                  Profil
+                  {t("nav.profile")}
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild>
                 <Link to="/parametres">
                   <Settings className="mr-2 size-4" />
-                  Paramètres
+                  {t("app.settings")}
                 </Link>
               </DropdownMenuItem>
 
               <DropdownMenuItem asChild>
                 <Link to="/assistance">
                   <LifeBuoy className="mr-2 size-4" />
-                  Assistance
+                  {t("nav.support")}
                 </Link>
               </DropdownMenuItem>
 
@@ -196,7 +196,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
               <DropdownMenuItem onSelect={() => void signOut()}>
                 <LogOut className="mr-2 size-4" />
-                Se déconnecter
+                {t("nav.signout")}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -289,7 +289,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 )}
               >
                 <Icon className="size-5" />
-                {item.label}
+                {t(item.key)}
               </Link>
             );
           })}
@@ -298,7 +298,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <SheetTrigger asChild>
               <button className="flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-muted-foreground transition-colors duration-150 active:scale-95">
                 <MoreHorizontal className="size-5" />
-                Plus
+                {t("app.more")}
               </button>
             </SheetTrigger>
 
@@ -319,7 +319,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                       className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-150 hover:bg-muted"
                     >
                       <Icon className="size-[18px] text-primary" />
-                      {item.label}
+                      {t(item.key)}
                     </Link>
                   );
                 })}
@@ -330,7 +330,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors duration-150 hover:bg-muted"
                 >
                   <LifeBuoy className="size-[18px] text-primary" />
-                  Assistance
+                  {t("nav.support")}
                 </Link>
 
                 <button
@@ -341,7 +341,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium text-destructive transition-colors duration-150 hover:bg-destructive/10"
                 >
                   <LogOut className="size-[18px]" />
-                  Déconnexion
+                  {t("nav.signout")}
                 </button>
               </div>
             </SheetContent>
