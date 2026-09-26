@@ -173,15 +173,14 @@ function AuthenticatedLayout() {
   // Utilisateur normal : sidebar + topbar persistantes.
   return (
     <AppShell>
-      <SubscriptionExpiryWatcher />
+      <SubscriptionExpiryWatcher subscription={loaderData?.subscription} />
       <Outlet />
     </AppShell>
   );
 }
 
-function SubscriptionExpiryWatcher() {
+function SubscriptionExpiryWatcher({ subscription }: { subscription?: { ends_at?: string | null; trial_ends_at?: string | null } }) {
   const router = useRouter();
-  const subscription = loaderData?.subscription;
 
   useEffect(() => {
     const end = subscription?.ends_at ?? subscription?.trial_ends_at;
