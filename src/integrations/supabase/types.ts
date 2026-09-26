@@ -113,6 +113,77 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          created_at: string
+          email_sent_at: string | null
+          id: string
+          message: string
+          property_id: string | null
+          read: boolean
+          rent_record_id: string | null
+          tenant_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          message: string
+          property_id?: string | null
+          read?: boolean
+          rent_record_id?: string | null
+          tenant_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_sent_at?: string | null
+          id?: string
+          message?: string
+          property_id?: string | null
+          read?: boolean
+          rent_record_id?: string | null
+          tenant_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_rent_record_id_fkey"
+            columns: ["rent_record_id"]
+            isOneToOne: false
+            referencedRelation: "rent_records"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_rent_record_id_fkey"
+            columns: ["rent_record_id"]
+            isOneToOne: false
+            referencedRelation: "rent_status_view"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_tenant_id_fkey"
+            columns: ["tenant_id"]
+            isOneToOne: false
+            referencedRelation: "tenants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       payment_requests: {
         Row: {
           amount: number
@@ -561,6 +632,15 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      admin_send_announcement: {
+        Args: {
+          p_audience?: string
+          p_body: string
+          p_kind?: string
+          p_title: string
+        }
+        Returns: string
+      }
       admin_set_suspended: {
         Args: { p_suspended: boolean; p_user_id: string }
         Returns: undefined
@@ -598,6 +678,7 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: Database["public"]["Enums"]["sub_status"]
       }
+      generate_reminders: { Args: never; Returns: number }
       generate_rent_records: { Args: { p_period: string }; Returns: number }
       has_access: { Args: { p_user_id: string }; Returns: boolean }
       has_admin_access: { Args: { _user_id: string }; Returns: boolean }
