@@ -14,14 +14,21 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { fcfa, monthLabel, shortDate, STATUS_DOT, STATUS_LABEL } from "@/lib/format";
 
 import { printReceipt } from "@/lib/receipt";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/paiements")({
   head: () => ({
     meta: [
-      { title: t("payments.title") },
-      { name: "description", content: t("payments.description") },
-      { property: "og:title", content: t("payments.title") },
-      { property: "og:description", content: t("payments.subtitle") },
+      { title: "Paiements" },
+      {
+        name: "description",
+        content: "Gérez les paiements et les loyers de vos locataires.",
+      },
+      { property: "og:title", content: "Paiements" },
+      {
+        property: "og:description",
+        content: "Suivez les paiements, les loyers en retard et les encaissements.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -94,7 +101,7 @@ function Payments() {
     },
     onSuccess: ({ amount, reference }) => {
       logActivity("payment_recorded", { rent_record_id: target?.id, amount });
-      const t = target!;
+      const targetRent = target!;
       toast.success(t("payments.saved"));
       setTarget(null);
       setForm({ amount: "", paid_at: new Date().toISOString().slice(0, 10), method: "", note: "" });
@@ -102,13 +109,13 @@ function Payments() {
       void queryClient.invalidateQueries({ queryKey: ["tenant-history"] });
       printReceipt({
         owner: profile.data?.full_name ?? profile.data?.email ?? "Propriétaire",
-        tenant: t.tenant_name ?? "",
-        property: t.property_name ?? "—",
+        tenant: targetRent.tenant_name ?? "",
+        property: targetRent.property_name ?? "—",
         amount,
         paidAt: form.paid_at,
-        period: t.period,
+        period: targetRent.period,
         reference,
-        balance: Math.max(0, Number(t.balance) - amount),
+        balance: Math.max(0, Number(targetRent.balance) - amount),
       });
     },
     onError: (e: Error) => toast.error(e.message),
