@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Pencil, Plus, UserX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { logActivity } from "@/hooks/useAccount";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
@@ -10,14 +10,40 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { fcfa } from "@/lib/format";
+
+type TenantForm = {
+  full_name: string;
+  phone: string;
+  property_id: string;
+  move_in_date: string;
+  rent_amount: string;
+  due_day: string;
+};
+const emptyForm: TenantForm = {
+  full_name: "",
+  phone: "",
+  property_id: "",
+  move_in_date: "",
+  rent_amount: "",
+  due_day: "5",
+};
 
 export const Route = createFileRoute("/_authenticated/locataires")({
   head: () => ({
     meta: [
       { title: "Locataires — LoyerAlert" },
-      { name: "description", content: "Fiches locataires : loyer, échéance, retards et relance WhatsApp." },
+      {
+        name: "description",
+        content: "Fiches locataires : loyer, échéance, retards et relance WhatsApp.",
+      },
       { property: "og:title", content: "Locataires — LoyerAlert" },
       { property: "og:description", content: "Suivez chaque locataire et relancez-le en un clic." },
       { property: "og:type", content: "website" },
@@ -30,19 +56,16 @@ export const Route = createFileRoute("/_authenticated/locataires")({
 function Tenants() {
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({
-    full_name: "",
-    phone: "",
-    property_id: "",
-    move_in_date: "",
-    rent_amount: "",
-    due_day: "5",
-  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState<TenantForm>(emptyForm);
 
   const properties = useQuery({
     queryKey: ["properties"],
     queryFn: async () => {
-      const { data, error } = await supabase.from("properties").select("id, name, rent_amount, due_day");
+      const { data, error } = await supabase
+        .from("properties")
+        .select("id, name, rent_amount, due_day")
+        .is("archived_at", null);
       if (error) throw error;
       return data ?? [];
     },
@@ -54,6 +77,7 @@ function Tenants() {
       const { data, error } = await supabase
         .from("tenants")
         .select("*, properties(name)")
+        .eq("active", true)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
@@ -61,71 +85,126 @@ function Tenants() {
     retry: 2,
   });
 
-  // Actualisation automatique : dès qu'un logement ou un locataire change côté
-  // Supabase (autre appareil, autre onglet, action admin…), ces listes se
-  // remettent à jour toutes seules, sans rechargement manuel.
   useRealtimeSync(["tenants", "properties"], [["tenants"], ["properties"]]);
 
-  const create = useMutation({
+  const save = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("tenants").insert({
-        full_name: form.full_name.trim(),
-        phone: form.phone.trim(),
+      const name = form.full_name.trim();
+      const phone = form.phone.trim();
+      const rent = Number(form.rent_amount);
+      const due = Number(form.due_day);
+      if (!name) throw new Error("Le nom du locataire est obligatoire.");
+      if (phone.replace(/\D/g, "").length < 8) throw new Error("Numéro de téléphone incomplet.");
+      if (!Number.isFinite(rent) || rent < 0) throw new Error("Le loyer doit être positif.");
+      if (!Number.isInteger(due) || due < 1 || due > 28)
+        throw new Error("Le jour d'échéance doit être compris entre 1 et 28.");
+
+      const payload = {
+        full_name: name,
+        phone,
         property_id: form.property_id || null,
         move_in_date: form.move_in_date || null,
-        rent_amount: Number(form.rent_amount || 0),
-        due_day: Number(form.due_day || 5),
-      });
+        rent_amount: rent,
+        due_day: due,
+      };
+      if (editingId) {
+        const { error } = await supabase.from("tenants").update(payload).eq("id", editingId);
+        if (error) throw error;
+        return "updated" as const;
+      }
+      const { error } = await supabase.from("tenants").insert(payload);
       if (error) throw error;
+      return "created" as const;
     },
-    onSuccess: () => {
-      toast.success("Locataire ajouté.");
-      logActivity("tenant_created", { name: form.full_name });
-      setOpen(false);
-      setForm({ full_name: "", phone: "", property_id: "", move_in_date: "", rent_amount: "", due_day: "5" });
+    onSuccess: (mode) => {
+      toast.success(mode === "created" ? "Locataire ajouté." : "Locataire modifié.");
+      logActivity(mode === "created" ? "tenant_created" : "tenant_updated", {
+        name: form.full_name,
+        tenant_id: editingId,
+      });
+      closeForm();
       void queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      void queryClient.invalidateQueries({ queryKey: ["properties"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const deactivate = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("deactivate_tenant", { p_tenant_id: id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Locataire désactivé. Son historique est conservé.");
+      void queryClient.invalidateQueries({ queryKey: ["tenants"] });
+      void queryClient.invalidateQueries({ queryKey: ["rents"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  function openCreate() {
+    setEditingId(null);
+    setForm(emptyForm);
+    setOpen(true);
+  }
+  function openEdit(t: NonNullable<typeof list.data>[number]) {
+    setEditingId(t.id);
+    setForm({
+      full_name: t.full_name ?? "",
+      phone: t.phone ?? "",
+      property_id: t.property_id ?? "",
+      move_in_date: t.move_in_date ?? "",
+      rent_amount: String(t.rent_amount ?? ""),
+      due_day: String(t.due_day ?? 5),
+    });
+    setOpen(true);
+  }
+  function closeForm() {
+    setOpen(false);
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+  function deactivateTenant(id: string, name: string) {
+    if (
+      window.confirm(`Désactiver « ${name} » ? L'historique des loyers et paiements sera conservé.`)
+    )
+      deactivate.mutate(id);
+  }
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h1 className="text-2xl font-bold">Locataires</h1>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(value) => (value ? setOpen(true) : closeForm())}>
           <DialogTrigger asChild>
-            <Button size="sm">
+            <Button size="sm" onClick={openCreate}>
               <Plus className="mr-1 size-4" /> Ajouter
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Nouveau locataire</DialogTitle>
+              <DialogTitle>{editingId ? "Modifier le locataire" : "Nouveau locataire"}</DialogTitle>
             </DialogHeader>
             <form
               className="stagger space-y-3"
               onSubmit={(e) => {
                 e.preventDefault();
-                create.mutate();
+                save.mutate();
               }}
             >
-              <div className="space-y-1.5">
-                <Label>Nom</Label>
-                <Input
-                  required
-                  value={form.full_name}
-                  onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Téléphone (WhatsApp)</Label>
-                <Input
-                  required
-                  placeholder="70 00 00 00"
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                />
-              </div>
+              <Field
+                label="Nom"
+                value={form.full_name}
+                onChange={(v) => setForm({ ...form, full_name: v })}
+                required
+              />
+              <Field
+                label="Téléphone (WhatsApp)"
+                value={form.phone}
+                onChange={(v) => setForm({ ...form, phone: v })}
+                placeholder="+226 70 00 00 00"
+                required
+              />
               <div className="space-y-1.5">
                 <Label>Logement</Label>
                 <select
@@ -149,34 +228,35 @@ function Tenants() {
                   ))}
                 </select>
               </div>
-              <div className="space-y-1.5">
-                <Label>Date d'entrée</Label>
-                <Input
-                  type="date"
-                  value={form.move_in_date}
-                  onChange={(e) => setForm({ ...form, move_in_date: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Loyer (FCFA)</Label>
-                <Input
-                  type="number"
-                  required
-                  value={form.rent_amount}
-                  onChange={(e) => setForm({ ...form, rent_amount: e.target.value })}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label>Jour d'échéance (1-28)</Label>
-                <Input
-                  type="number"
-                  required
-                  value={form.due_day}
-                  onChange={(e) => setForm({ ...form, due_day: e.target.value })}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={create.isPending}>
-                {create.isPending ? "Enregistrement…" : "Enregistrer"}
+              <Field
+                label="Date d'entrée"
+                type="date"
+                value={form.move_in_date}
+                onChange={(v) => setForm({ ...form, move_in_date: v })}
+              />
+              <Field
+                label="Loyer (FCFA)"
+                type="number"
+                min="0"
+                value={form.rent_amount}
+                onChange={(v) => setForm({ ...form, rent_amount: v })}
+                required
+              />
+              <Field
+                label="Jour d'échéance (1-28)"
+                type="number"
+                min="1"
+                max="28"
+                value={form.due_day}
+                onChange={(v) => setForm({ ...form, due_day: v })}
+                required
+              />
+              <Button type="submit" className="w-full" disabled={save.isPending}>
+                {save.isPending
+                  ? "Enregistrement…"
+                  : editingId
+                    ? "Enregistrer les modifications"
+                    : "Enregistrer"}
               </Button>
             </form>
           </DialogContent>
@@ -188,19 +268,39 @@ function Tenants() {
       ) : list.data && list.data.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {list.data.map((t) => (
-            <Link
-              key={t.id}
-              to="/locataires/$tenantId"
-              params={{ tenantId: t.id }}
-              className="surface block p-4 transition-shadow hover:shadow-md"
-            >
-              <p className="font-semibold uppercase">{t.full_name}</p>
-              <p className="text-sm text-muted-foreground">
-                {(t.properties as { name: string } | null)?.name ?? "Sans logement"}
-              </p>
-              <p className="mt-2 font-semibold">{fcfa(t.rent_amount)}</p>
-              <p className="text-sm text-muted-foreground">Échéance : le {t.due_day} du mois</p>
-            </Link>
+            <div key={t.id} className="surface flex items-start justify-between gap-3 p-4">
+              <Link
+                to="/locataires/$tenantId"
+                params={{ tenantId: t.id }}
+                className="min-w-0 flex-1 transition-opacity hover:opacity-80"
+              >
+                <p className="truncate font-semibold uppercase">{t.full_name}</p>
+                <p className="truncate text-sm text-muted-foreground">
+                  {(t.properties as { name: string } | null)?.name ?? "Sans logement"}
+                </p>
+                <p className="mt-2 font-semibold">{fcfa(t.rent_amount)}</p>
+                <p className="text-sm text-muted-foreground">Échéance : le {t.due_day} du mois</p>
+              </Link>
+              <div className="flex shrink-0 gap-1">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Modifier"
+                  onClick={() => openEdit(t)}
+                >
+                  <Pencil className="size-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Désactiver"
+                  disabled={deactivate.isPending}
+                  onClick={() => deactivateTenant(t.id, t.full_name)}
+                >
+                  <UserX className="size-4 text-destructive" />
+                </Button>
+              </div>
+            </div>
           ))}
         </div>
       ) : (
@@ -208,6 +308,41 @@ function Tenants() {
           Aucun locataire pour le moment.
         </p>
       )}
+    </div>
+  );
+}
+
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required,
+  placeholder,
+  min,
+  max,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  required?: boolean;
+  placeholder?: string;
+  min?: string;
+  max?: string;
+}) {
+  return (
+    <div className="space-y-1.5">
+      <Label>{label}</Label>
+      <Input
+        type={type}
+        min={min}
+        max={max}
+        required={required}
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
     </div>
   );
 }

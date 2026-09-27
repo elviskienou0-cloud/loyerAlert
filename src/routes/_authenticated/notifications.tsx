@@ -17,8 +17,8 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/notifications")({
   head: () => ({
     meta: [
-      { title: "Notifications — LoyerAlert" },
-      { name: "description", content: "Échéances proches, loyers dus aujourd'hui et retards de paiement." },
+      { title: "Notifications Ã¢â‚¬â€ LoyerAlert" },
+      { name: "description", content: "Ãƒâ€°chÃƒÂ©ances proches, loyers dus aujourd'hui et retards de paiement." },
     ],
   }),
   component: NotificationsPage,
@@ -28,12 +28,14 @@ const TYPE_ICON: Record<NotificationType, typeof Clock> = {
   due_soon: Clock,
   due_today: Bell,
   overdue: AlertTriangle,
+  announcement: Bell,
 };
 
 const TYPE_STYLE: Record<NotificationType, string> = {
   due_soon: "bg-amber-500/10 text-amber-600",
   due_today: "bg-orange-500/10 text-orange-600",
   overdue: "bg-destructive/10 text-destructive",
+  announcement: "bg-primary/10 text-primary",
 };
 
 function NotificationsPage() {
