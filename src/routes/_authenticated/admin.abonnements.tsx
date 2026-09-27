@@ -4,12 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge, Panel, statusLabel, statusTone } from "@/components/admin/AdminBits";
 import { shortDate } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/abonnements")({
   component: AdminSubscriptions,
 });
 
 function AdminSubscriptions() {
+  const { t } = useI18n();
   const subs = useQuery({
     queryKey: ["admin-subscriptions"],
     queryFn: async () => {
@@ -21,21 +23,21 @@ function AdminSubscriptions() {
 
   return (
     <div className="space-y-4">
-      <h1 className="font-display text-2xl font-bold">Abonnements</h1>
-      <Panel title="Tous les abonnements">
+      <h1 className="font-display text-2xl font-bold">{t("adminSubs.title")}</h1>
+      <Panel title={t("adminSubs.all")}>
         {subs.isLoading ? (
           <Skeleton className="m-4 h-32" />
         ) : (subs.data ?? []).length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">Aucun abonnement.</p>
+          <p className="p-4 text-sm text-muted-foreground">{t("adminSubs.none")}</p>
         ) : (
           <table className="w-full min-w-[720px] text-sm">
             <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-2">Propriétaire</th>
-                <th className="px-4 py-2">Formule</th>
-                <th className="px-4 py-2">Statut</th>
-                <th className="px-4 py-2">Fin d'essai</th>
-                <th className="px-4 py-2">Fin d'abonnement</th>
+                <th className="px-4 py-2">{t("adminSubs.owner")}</th>
+                <th className="px-4 py-2">{t("adminSubs.plan")}</th>
+                <th className="px-4 py-2">{t("adminSubs.status")}</th>
+                <th className="px-4 py-2">{t("adminSubs.trialEnd")}</th>
+                <th className="px-4 py-2">{t("adminSubs.end")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
