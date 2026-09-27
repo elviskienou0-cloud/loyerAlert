@@ -67,16 +67,16 @@ export const Route = createFileRoute("/_authenticated/admin")({
 });
 
 const LINKS = [
-  { to: "/admin", label: "Dashboard", icon: BarChart3, exact: true },
-  { to: "/admin/utilisateurs", label: "Utilisateurs", icon: Users, exact: false },
-  { to: "/admin?section=annonces", label: "Annonces", icon: Home, exact: false },
-  { to: "/admin?section=signalements", label: "Signalements", icon: Flag, exact: false },
-  { to: "/admin?section=proprietaires", label: "Propriétaires", icon: Building2, exact: false },
-  { to: "/admin?section=demandes", label: "Demandes", icon: ClipboardList, exact: false },
-  { to: "/admin?section=avis", label: "Avis", icon: MessageSquare, exact: false },
-  { to: "/admin/paiements", label: "Paiements / Abonnements", icon: CreditCard, exact: false },
-  { to: "/admin?section=notifications", label: "Notifications", icon: Bell, exact: false },
-  { to: "/admin?section=parametres", label: "Paramètres", icon: Settings, exact: false },
+  { to: "/admin", labelKey: "admin.dashboard", icon: BarChart3, exact: true },
+  { to: "/admin/utilisateurs", labelKey: "admin.users", icon: Users, exact: false },
+  { to: "/admin?section=annonces", labelKey: "admin.announcements", icon: Home, exact: false },
+  { to: "/admin?section=signalements", labelKey: "admin.reports", icon: Flag, exact: false },
+  { to: "/admin?section=proprietaires", labelKey: "admin.owners", icon: Building2, exact: false },
+  { to: "/admin?section=demandes", labelKey: "admin.requests", icon: ClipboardList, exact: false },
+  { to: "/admin?section=avis", labelKey: "admin.reviews", icon: MessageSquare, exact: false },
+  { to: "/admin/paiements", labelKey: "admin.paymentsSubscriptions", icon: CreditCard, exact: false },
+  { to: "/admin?section=notifications", labelKey: "admin.notifications", icon: Bell, exact: false },
+  { to: "/admin?section=parametres", labelKey: "admin.settings", icon: Settings, exact: false },
 ] as const;
 
 function AdminLayout() {
@@ -102,7 +102,7 @@ function AdminLayout() {
             <div>
               <p className="font-display text-lg font-bold text-slate-900">LoyerAlert</p>
               <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-600">
-                Administration
+                {t("admin.title")}
               </p>
             </div>
           </div>
@@ -134,7 +134,7 @@ function AdminLayout() {
                   )}
                 >
                   <Icon className="size-4" />
-                  <span className="whitespace-nowrap">{l.label}</span>
+                  <span className="whitespace-nowrap">{t(l.labelKey)}</span>
                   {count > 0 ? (
                     <span
                       className={cn(
@@ -163,7 +163,7 @@ function AdminLayout() {
           <div className="mt-6 hidden rounded-2xl bg-emerald-50 p-3 text-xs text-emerald-800 lg:block">
             <p className="font-semibold">{t("admin.secure")}</p>
             <p className="mt-1 text-emerald-700/80">
-              Les outils d'administration sont réservés aux comptes autorisés.
+              {t("admin.secureDescription")}
             </p>
           </div>
         </aside>
