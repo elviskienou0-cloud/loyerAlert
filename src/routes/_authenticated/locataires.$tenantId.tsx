@@ -13,10 +13,10 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/locataires/$tenantId")({
   head: () => ({
     meta: [
-      { title: t("tenantDetail.title") },
-      { name: "description", content: t("tenantDetail.description") },
-      { property: "og:title", content: t("tenantDetail.title") },
-      { property: "og:description", content: t("tenantDetail.subtitle") },
+      { title: "Détail du locataire" },
+      { name: "description", content: "Consultez les informations et l'historique du locataire." },
+      { property: "og:title", content: "Détail du locataire" },
+      { property: "og:description", content: "Historique des loyers et informations du locataire." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -64,33 +64,33 @@ function TenantDetail() {
   if (tenant.isLoading) return <Skeleton className="h-40 w-full" />;
   if (!tenant.data) return <p className="surface p-6 text-sm">{t("tenantDetail.notFound")}</p>;
 
-  const t = tenant.data;
+  const tenantData = tenant.data;
   const current = history.data?.[0];
   const status = current?.status ?? "upcoming";
 
   return (
     <div className="space-y-4">
       <div className="surface p-5">
-        <h1 className="text-xl font-bold uppercase">{t.full_name}</h1>
+        <h1 className="text-xl font-bold uppercase">{tenantData.full_name}</h1>
         <p className="text-sm text-muted-foreground">
-          {(t.properties as { name: string } | null)?.name ?? t("tenantDetail.noProperty")} · {t.phone}
+          {(t.properties as { name: string } | null)?.name ?? t("tenantDetail.noProperty")} · {tenantData.phone}
         </p>
-        <p className="mt-3 text-2xl font-bold">{fcfa(t.rent_amount)}</p>
+        <p className="mt-3 text-2xl font-bold">{fcfa(tenantData.rent_amount)}</p>
         <p className="text-sm text-muted-foreground">
-          Échéance : le {t.due_day} du mois · Entrée : {shortDate(t.move_in_date)}
+          Échéance : le {tenantData.due_day} du mois · Entrée : {shortDate(tenantData.move_in_date)}
         </p>
         <p className="mt-2 text-sm font-semibold">
           {STATUS_DOT[status]} {STATUS_LABEL[status]}
         </p>
         <div className="mt-4">
           <WhatsAppButton
-            phone={t.phone}
-            name={t.full_name}
+            phone={tenantData.phone}
+            name={tenantData.full_name}
             amount={Number(current?.balance ?? t.rent_amount)}
             date={current?.due_date ?? new Date().toISOString()}
             variant="default"
             label
-            onOpen={(kind) => logActivity("whatsapp_opened", { tenant: t.id, kind })}
+            onOpen={(kind) => logActivity("whatsapp_opened", { tenant: tenantData.id, kind })}
           />
         </div>
 
