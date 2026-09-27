@@ -8,13 +8,15 @@ import { logActivity } from "@/hooks/useAccount";
 import { useRealtimeSync } from "@/hooks/useRealtimeSync";
 
 
+import { useI18n } from "@/lib/i18n";
+
 export const Route = createFileRoute("/_authenticated/locataires/$tenantId")({
   head: () => ({
     meta: [
-      { title: "Fiche locataire — LoyerAlert" },
-      { name: "description", content: "Historique des loyers, paiements, soldes et retards du locataire." },
-      { property: "og:title", content: "Fiche locataire — LoyerAlert" },
-      { property: "og:description", content: "Historique complet et relance WhatsApp." },
+      { title: t("tenantDetail.title") },
+      { name: "description", content: t("tenantDetail.description") },
+      { property: "og:title", content: t("tenantDetail.title") },
+      { property: "og:description", content: t("tenantDetail.subtitle") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -23,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/locataires/$tenantId")({
 });
 
 function TenantDetail() {
+  const { t } = useI18n();
   const { tenantId } = Route.useParams();
 
   const tenant = useQuery({
@@ -59,7 +62,7 @@ function TenantDetail() {
   );
 
   if (tenant.isLoading) return <Skeleton className="h-40 w-full" />;
-  if (!tenant.data) return <p className="surface p-6 text-sm">Locataire introuvable.</p>;
+  if (!tenant.data) return <p className="surface p-6 text-sm">{t("tenantDetail.notFound")}</p>;
 
   const t = tenant.data;
   const current = history.data?.[0];
@@ -70,7 +73,7 @@ function TenantDetail() {
       <div className="surface p-5">
         <h1 className="text-xl font-bold uppercase">{t.full_name}</h1>
         <p className="text-sm text-muted-foreground">
-          {(t.properties as { name: string } | null)?.name ?? "Sans logement"} · {t.phone}
+          {(t.properties as { name: string } | null)?.name ?? t("tenantDetail.noProperty")} · {t.phone}
         </p>
         <p className="mt-3 text-2xl font-bold">{fcfa(t.rent_amount)}</p>
         <p className="text-sm text-muted-foreground">
@@ -94,7 +97,7 @@ function TenantDetail() {
       </div>
 
       <div className="surface p-5">
-        <h2 className="text-base font-semibold">Historique</h2>
+        <h2 className="text-base font-semibold">{t("tenantDetail.history")}</h2>
         {history.isLoading ? (
           <Skeleton className="mt-3 h-24 w-full" />
         ) : history.data && history.data.length > 0 ? (
