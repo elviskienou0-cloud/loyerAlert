@@ -33,21 +33,21 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       {
-        title: t("dashboard.title"),
+        title: "Tableau de bord",
       },
       {
         name: "description",
         content:
-          t("dashboard.description"),
+          "Gérez vos logements, locataires et loyers depuis votre tableau de bord LoyerAlert.",
       },
       {
         property: "og:title",
-        content: t("dashboard.title"),
+        content: "Tableau de bord",
       },
       {
         property: "og:description",
         content:
-          t("dashboard.ogDescription"),
+          "Vos logements, loyers et paiements en un coup d'œil.",
       },
       {
         property: "og:type",
