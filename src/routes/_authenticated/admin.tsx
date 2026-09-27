@@ -17,6 +17,8 @@ import { useAdminNotifications, usePendingRequestsCount } from "@/hooks/useAdmin
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 
+import { useI18n } from "@/lib/i18n";
+
 export const Route = createFileRoute("/_authenticated/admin")({
   beforeLoad: async () => {
     const { data: userData, error: userError } = await supabase.auth.getUser();
@@ -78,6 +80,7 @@ const LINKS = [
 ] as const;
 
 function AdminLayout() {
+  const { t } = useI18n();
   const location = useRouterState({
     select: (s) => ({ pathname: s.location.pathname, searchStr: s.location.searchStr }),
   });
@@ -154,11 +157,11 @@ function AdminLayout() {
             className="mt-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-600 transition-colors hover:bg-emerald-50 hover:text-emerald-700"
           >
             <LifeBuoy className="size-4" />
-            <span>Assistance</span>
+            <span>{t("admin.support")}</span>
           </a>
 
           <div className="mt-6 hidden rounded-2xl bg-emerald-50 p-3 text-xs text-emerald-800 lg:block">
-            <p className="font-semibold">Espace sécurisé</p>
+            <p className="font-semibold">{t("admin.secure")}</p>
             <p className="mt-1 text-emerald-700/80">
               Les outils d'administration sont réservés aux comptes autorisés.
             </p>
