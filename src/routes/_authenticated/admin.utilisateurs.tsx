@@ -8,12 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge, Panel, statusLabel, statusTone } from "@/components/admin/AdminBits";
 import { shortDate } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/utilisateurs")({
   component: AdminUsers,
 });
 
 function AdminUsers() {
+  const { t } = useI18n();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
@@ -33,7 +35,7 @@ function AdminUsers() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Compte mis à jour.");
+      toast.success(t("adminUsers.updated"));
       void qc.invalidateQueries({ queryKey: ["admin-users"] });
       void qc.invalidateQueries({ queryKey: ["admin-stats"] });
     },
@@ -42,7 +44,7 @@ function AdminUsers() {
 
   return (
     <div className="space-y-4">
-      <h1 className="font-display text-2xl font-bold">Utilisateurs</h1>
+      <h1 className="font-display text-2xl font-bold">{t("adminUsers.title")}</h1>
 
       <form
         className="flex gap-2"
@@ -51,26 +53,26 @@ function AdminUsers() {
           setQuery(search.trim());
         }}
       >
-        <Input placeholder="Rechercher par nom ou e-mail…" value={search} onChange={(e) => setSearch(e.target.value)} />
-        <Button type="submit">Rechercher</Button>
+        <Input placeholder={t("adminUsers.searchPlaceholder")} value={search} onChange={(e) => setSearch(e.target.value)} />
+        <Button type="submit">{t("adminUsers.search")}</Button>
       </form>
 
-      <Panel title="Comptes propriétaires">
+      <Panel title={t("adminUsers.owners")}>
         {users.isLoading ? (
           <Skeleton className="m-4 h-32" />
         ) : (users.data ?? []).length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">Aucun utilisateur trouvé.</p>
+          <p className="p-4 text-sm text-muted-foreground">{t("adminUsers.none")}</p>
         ) : (
           <table className="w-full min-w-[820px] text-sm">
             <thead className="bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
               <tr>
-                <th className="px-4 py-2">Utilisateur</th>
-                <th className="px-4 py-2">Rôle</th>
-                <th className="px-4 py-2">Formule</th>
-                <th className="px-4 py-2">Statut</th>
-                <th className="px-4 py-2">Logements</th>
-                <th className="px-4 py-2">Inscrit le</th>
-                <th className="px-4 py-2 text-right">Action</th>
+                <th className="px-4 py-2">{t("adminUsers.user")}</th>
+                <th className="px-4 py-2">{t("adminUsers.role")}</th>
+                <th className="px-4 py-2">{t("adminUsers.plan")}</th>
+                <th className="px-4 py-2">{t("adminUsers.status")}</th>
+                <th className="px-4 py-2">{t("adminUsers.properties")}</th>
+                <th className="px-4 py-2">{t("adminUsers.registered")}</th>
+                <th className="px-4 py-2 text-right">{t("adminUsers.action")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
