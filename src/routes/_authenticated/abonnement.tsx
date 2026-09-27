@@ -15,22 +15,24 @@ import { fcfa, PLANS, shortDate } from "@/lib/format";
 import { openSaspayCheckout } from "@/lib/saspay";
 import { cn } from "@/lib/utils";
 
+import { useI18n } from "@/lib/i18n";
+
 export const Route = createFileRoute("/_authenticated/abonnement")({
   head: () => ({
     meta: [
-      { title: "Abonnement — LoyerAlert" },
+      { title: t("subscription.title") },
       {
         name: "description",
         content:
-          "Renouvelez votre abonnement LoyerAlert et continuez à gérer vos biens sereinement.",
+          t("subscription.description"),
       },
       {
         property: "og:title",
-        content: "Abonnement — LoyerAlert",
+        content: t("subscription.title"),
       },
       {
         property: "og:description",
-        content: "Renouvelez votre abonnement LoyerAlert.",
+        content: t("subscription.renew"),
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -43,6 +45,7 @@ const MAX_SIZE = 3 * 1024 * 1024;
 const MIME = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 function Subscription() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const reduceMotion = useReducedMotion();
 
@@ -79,7 +82,7 @@ function Subscription() {
       const chosen = PLANS.find((p) => p.id === plan);
 
       if (!chosen || chosen.price === 0) {
-        throw new Error("Choisissez une formule payante.");
+        throw new Error(t("subscription.choose"));
       }
 
       if (!file) {
@@ -97,7 +100,7 @@ function Subscription() {
       const { data: auth } = await supabase.auth.getUser();
 
       if (!auth.user) {
-        throw new Error("Non connecté");
+        throw new Error(t("subscription.notConnected"));
       }
 
       const ext =
@@ -142,7 +145,7 @@ function Subscription() {
 
     onSuccess: () => {
       toast.success(
-        "Demande envoyée. Elle sera vérifiée manuellement.",
+        t("subscription.success"),
       );
 
       logActivity("subscription_requested", { plan });
@@ -236,7 +239,7 @@ function Subscription() {
             <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">
               {isExpired
                 ? "Renouvelez votre abonnement"
-                : "Votre abonnement"}
+                : t("subscription.account")}
             </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
               Choisissez la formule adaptée à votre portefeuille immobilier.
@@ -329,7 +332,7 @@ function Subscription() {
                   onClick={() => {
                     if (!openSaspayCheckout(chosen.id)) {
                       toast.error(
-                        "Aucun lien SasPay pour cette formule.",
+                        t("subscription.noLink"),
                       );
                       return;
                     }
@@ -339,7 +342,7 @@ function Subscription() {
                     });
 
                     toast.info(
-                      "Lien SasPay ouvert. Revenez confirmer votre paiement ensuite.",
+                      t("subscription.linkOpened"),
                     );
                   }}
                 >
@@ -351,8 +354,8 @@ function Subscription() {
             <div className="space-y-4 rounded-2xl border border-border p-4">
               <p className="font-semibold">
                 {method === "saspay"
-                  ? "Étape 2 — Confirmer mon paiement"
-                  : "Confirmer mon paiement"}
+                  ? t("subscription.step2")
+                  : t("subscription.confirm")}
               </p>
 
               <div className="space-y-1.5">
@@ -415,8 +418,8 @@ function Subscription() {
                 disabled={submit.isPending}
               >
                 {submit.isPending
-                  ? "Envoi…"
-                  : "Confirmer mon paiement"}
+                  ? t("subscription.sending")
+                  : t("subscription.confirm")}
               </Button>
             </div>
           </motion.form>
@@ -443,10 +446,10 @@ function Subscription() {
 
                 <span className="font-medium">
                   {r.status === "pending"
-                    ? "🟡 En attente"
+                    ? t("subscription.pending")
                     : r.status === "approved"
-                      ? "🟢 Approuvée"
-                      : "🔴 Refusée"}
+                      ? t("subscription.approved")
+                      : t("subscription.rejected")}
                 </span>
               </li>
             ))}
@@ -617,7 +620,7 @@ function ExpiredSubscriptionHero({
                   ease: "easeInOut",
                 }}
                 className="absolute right-0 top-2 flex h-16 w-16 items-center justify-center rounded-2xl border border-green-200 bg-green-50 text-2xl shadow-lg"
-                aria-label="Abonnement expiré"
+                aria-label=t("subscription.expired")
               >
                 !
               </motion.div>
