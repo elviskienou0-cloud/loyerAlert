@@ -12,13 +12,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { shortDate } from "@/lib/format";
 import { DEFAULT_TEMPLATES, loadTemplates, saveTemplates, type ReminderKind } from "@/lib/whatsapp";
 
+import { useI18n } from "@/lib/i18n";
+
 export const Route = createFileRoute("/_authenticated/profil")({
   head: () => ({
     meta: [
-      { title: "Profil — LoyerAlert" },
-      { name: "description", content: "Vos informations, votre abonnement et vos modèles de relance WhatsApp." },
-      { property: "og:title", content: "Profil — LoyerAlert" },
-      { property: "og:description", content: "Gérez votre compte LoyerAlert." },
+      { title: t("profile.title") },
+      { name: "description", content: t("profile.description") },
+      { property: "og:title", content: t("profile.title") },
+      { property: "og:description", content: t("profile.subtitle") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -27,6 +29,7 @@ export const Route = createFileRoute("/_authenticated/profil")({
 });
 
 function Profile() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const { data: account } = useAccount();
   const [templates, setTemplates] = useState<Record<ReminderKind, string>>(DEFAULT_TEMPLATES);
@@ -52,7 +55,7 @@ function Profile() {
   const save = useMutation({
     mutationFn: async () => {
       const { data } = await supabase.auth.getUser();
-      if (!data.user) throw new Error("Non connecté");
+      if (!data.user) throw new Error(t("profile.notConnected"));
       const { error } = await supabase
         .from("profiles")
         .update({ full_name: form.full_name, phone: form.phone })
@@ -60,7 +63,7 @@ function Profile() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Profil enregistré.");
+      toast.success(t("profile.saved"));
       void queryClient.invalidateQueries({ queryKey: ["profile"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -106,7 +109,7 @@ function Profile() {
               ? `Essai jusqu'au ${shortDate(account.trial_ends_at)}`
               : account.ends_at
                 ? `Valide jusqu'au ${shortDate(account.ends_at)}`
-                : "Aucun abonnement actif"}
+                : t("profile.noActive")}
           </p>
         </div>
       ) : null}
