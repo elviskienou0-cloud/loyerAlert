@@ -18,10 +18,10 @@ import { printReceipt } from "@/lib/receipt";
 export const Route = createFileRoute("/_authenticated/paiements")({
   head: () => ({
     meta: [
-      { title: "Paiements — LoyerAlert" },
-      { name: "description", content: "Enregistrez les loyers payés, y compris les paiements partiels, et générez un reçu." },
-      { property: "og:title", content: "Paiements — LoyerAlert" },
-      { property: "og:description", content: "Loyers du mois, retards et reçus de paiement." },
+      { title: t("payments.title") },
+      { name: "description", content: t("payments.description") },
+      { property: "og:title", content: t("payments.title") },
+      { property: "og:description", content: t("payments.subtitle") },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -44,6 +44,7 @@ type Rent = {
 };
 
 function Payments() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [target, setTarget] = useState<Rent | null>(null);
   const [form, setForm] = useState({ amount: "", paid_at: new Date().toISOString().slice(0, 10), method: "", note: "" });
@@ -94,7 +95,7 @@ function Payments() {
     onSuccess: ({ amount, reference }) => {
       logActivity("payment_recorded", { rent_record_id: target?.id, amount });
       const t = target!;
-      toast.success("Paiement enregistré.");
+      toast.success(t("payments.saved"));
       setTarget(null);
       setForm({ amount: "", paid_at: new Date().toISOString().slice(0, 10), method: "", note: "" });
       void queryClient.invalidateQueries({ queryKey: ["rents"] });
@@ -119,7 +120,7 @@ function Payments() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-bold">Paiements</h1>
+      <h1 className="text-2xl font-bold">{t("payments.title")}</h1>
 
       {rents.isLoading ? (
         <Skeleton className="h-40 w-full" />
@@ -139,7 +140,7 @@ function Payments() {
       <Dialog open={!!target} onOpenChange={(o) => !o && setTarget(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Enregistrer un paiement</DialogTitle>
+            <DialogTitle>{t("payments.add")}</DialogTitle>
           </DialogHeader>
           {target ? (
             <form
@@ -153,7 +154,7 @@ function Payments() {
                 {target.tenant_name} · {monthLabel(target.period)} · reste {fcfa(target.balance)}
               </p>
               <div className="space-y-1.5">
-                <Label>Montant (FCFA)</Label>
+                <Label>{t("payments.amount")}</Label>
                 <Input
                   type="number"
                   required
@@ -162,7 +163,7 @@ function Payments() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Date</Label>
+                <Label>{t("payments.date")}</Label>
                 <Input
                   type="date"
                   required
@@ -171,15 +172,15 @@ function Payments() {
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Moyen de paiement (facultatif)</Label>
+                <Label>{t("payments.method")}</Label>
                 <Input
-                  placeholder="Espèces, Orange Money…"
+                  placeholder={t("payments.methodPlaceholder")}
                   value={form.method}
                   onChange={(e) => setForm({ ...form, method: e.target.value })}
                 />
               </div>
               <div className="space-y-1.5">
-                <Label>Note (facultatif)</Label>
+                <Label>{t("payments.note")}</Label>
                 <Textarea value={form.note} onChange={(e) => setForm({ ...form, note: e.target.value })} />
               </div>
               <Button type="submit" className="w-full" disabled={pay.isPending}>
