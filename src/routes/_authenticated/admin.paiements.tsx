@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Badge, Panel, statusLabel, statusTone } from "@/components/admin/AdminBits";
 import { fcfa, shortDate } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/admin/paiements")({
   component: AdminPayments,
@@ -30,6 +31,7 @@ const METHOD: Record<string, string> = {
 };
 
 function AdminPayments() {
+  const { t } = useI18n();
   const queryClient = useQueryClient();
   const [confirm, setConfirm] = useState<{ id: string; approve: boolean } | null>(null);
   const [reason, setReason] = useState("");
@@ -66,7 +68,7 @@ function AdminPayments() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success("Demande traitée.");
+      toast.success(t("adminPayments.processed"));
       setConfirm(null);
       setReason("");
       void queryClient.invalidateQueries({ queryKey: ["admin-requests"] });
@@ -79,7 +81,7 @@ function AdminPayments() {
   async function openProof(path: string) {
     const { data, error } = await supabase.storage.from("payment-proofs").createSignedUrl(path, 120);
     if (error || !data) {
-      toast.error("Preuve de paiement indisponible.");
+      toast.error(t("adminPayments.proofUnavailable"));
       return;
     }
     window.open(data.signedUrl, "_blank", "noopener");
@@ -87,26 +89,26 @@ function AdminPayments() {
 
   return (
     <div className="space-y-4">
-      <h1 className="font-display text-2xl font-bold">Demandes de paiement</h1>
-      <Panel title="Toutes les demandes">
+      <h1 className="font-display text-2xl font-bold">{t("adminPayments.title")}</h1>
+      <Panel title={t("adminPayments.title")}>
         {requests.isLoading ? (
           <Skeleton className="m-4 h-32" />
         ) : (requests.data ?? []).length === 0 ? (
-          <p className="p-4 text-sm text-muted-foreground">Aucune demande pour le moment.</p>
+          <p className="p-4 text-sm text-muted-foreground">{t("adminPayments.none")}</p>
         ) : (
           <table className="w-full min-w-[860px] text-sm">
             <thead className="bg-muted/50 text-left text-xs uppercase text-muted-foreground">
               <tr>
-                <th className="px-4 py-2">Utilisateur</th>
-                <th className="px-4 py-2">Formule</th>
-                <th className="px-4 py-2">Montant</th>
-                <th className="px-4 py-2">Méthode</th>
-                <th className="px-4 py-2">Canal</th>
-                <th className="px-4 py-2">Référence</th>
-                <th className="px-4 py-2">Payé le</th>
-                <th className="px-4 py-2">Date</th>
-                <th className="px-4 py-2">Statut</th>
-                <th className="px-4 py-2">Actions</th>
+                <th className="px-4 py-2">{t("adminPayments.user")}</th>
+                <th className="px-4 py-2">{t("adminPayments.plan")}</th>
+                <th className="px-4 py-2">{t("adminPayments.amount")}</th>
+                <th className="px-4 py-2">{t("adminPayments.method")}</th>
+                <th className="px-4 py-2">{t("adminPayments.channel")}</th>
+                <th className="px-4 py-2">{t("adminPayments.reference")}</th>
+                <th className="px-4 py-2">{t("adminPayments.paidAt")}</th>
+                <th className="px-4 py-2">{t("adminPayments.date")}</th>
+                <th className="px-4 py-2">{t("adminPayments.status")}</th>
+                <th className="px-4 py-2">{t("adminPayments.actions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -161,25 +163,25 @@ function AdminPayments() {
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {confirm?.approve ? "Approuver ce paiement ?" : "Rejeter ce paiement ?"}
+              {confirm?.approve ? t("adminPayments.approveQuestion") : t("adminPayments.rejectQuestion")}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {confirm?.approve
-                ? "L'abonnement de l'utilisateur sera activé pour 30 jours. Cette action est enregistrée dans le journal."
-                : "Indiquez la raison du refus. Elle sera visible par l'utilisateur."}
+                ? t("adminPayments.approveDescription")
+                : t("adminPayments.rejectDescription")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           {confirm && !confirm.approve ? (
-            <Input placeholder="Raison du refus" value={reason} onChange={(e) => setReason(e.target.value)} />
+            <Input placeholder={t("adminPayments.reason")} value={reason} onChange={(e) => setReason(e.target.value)} />
           ) : null}
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t("adminPayments.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={(e) => {
                 e.preventDefault();
                 if (!confirm) return;
                 if (!confirm.approve && !reason.trim()) {
-                  toast.error("Une raison est obligatoire.");
+                  toast.error(t("adminPayments.requiredReason"));
                   return;
                 }
                 review.mutate({
