@@ -27,26 +27,27 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CountUp } from "@/components/motion";
 import { currentPeriod, fcfa, monthLabel } from "@/lib/format";
+import { useI18n } from "@/lib/i18n";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
       {
-        title: "Tableau de bord — LoyerAlert",
+        title: t("dashboard.title"),
       },
       {
         name: "description",
         content:
-          "Gérez vos logements, locataires et loyers depuis votre tableau de bord LoyerAlert.",
+          t("dashboard.description"),
       },
       {
         property: "og:title",
-        content: "Tableau de bord — LoyerAlert",
+        content: t("dashboard.title"),
       },
       {
         property: "og:description",
         content:
-          "Vos logements, loyers et paiements en un coup d'œil.",
+          t("dashboard.ogDescription"),
       },
       {
         property: "og:type",
@@ -71,6 +72,7 @@ type Row = {
 };
 
 function Dashboard() {
+  const { t } = useI18n();
   const { data: account } = useAccount();
   const queryClient = useQueryClient();
 
@@ -197,7 +199,7 @@ function Dashboard() {
       return;
     }
 
-    toast.success("Loyers du mois générés.");
+    toast.success(t("dashboard.generated"));
 
     void queryClient.invalidateQueries({
       queryKey: ["rents"],
