@@ -20,19 +20,18 @@ import { useI18n } from "@/lib/i18n";
 export const Route = createFileRoute("/_authenticated/abonnement")({
   head: () => ({
     meta: [
-      { title: t("subscription.title") },
+      { title: "Abonnement" },
       {
         name: "description",
-        content:
-          t("subscription.description"),
+        content: "Gérez votre abonnement LoyerAlert.",
       },
       {
         property: "og:title",
-        content: t("subscription.title"),
+        content: "Abonnement",
       },
       {
         property: "og:description",
-        content: t("subscription.renew"),
+        content: "Renouvelez votre abonnement LoyerAlert.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -620,7 +619,7 @@ function ExpiredSubscriptionHero({
                   ease: "easeInOut",
                 }}
                 className="absolute right-0 top-2 flex h-16 w-16 items-center justify-center rounded-2xl border border-green-200 bg-green-50 text-2xl shadow-lg"
-                aria-label=t("subscription.expired")
+                aria-label="Abonnement expiré"
               >
                 !
               </motion.div>
